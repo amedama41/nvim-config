@@ -25,7 +25,8 @@ vim.opt.list = true     -- 非表示文字の可視化
 -- vim.opt.showmatch = true -- 括弧入力時に対応する括弧の表示
 -- vim.opt.matchtime = 1    -- 対応する括弧を表示する時間 (0.1s 単位)
 if vim.fn.exists("&ambiwidth") ~= 0 then
-    vim.opt.ambiwidth = "double"
+    -- vim.opt.ambiwidth = "double"
+    vim.opt.ambiwidth = "single" -- NeoVimだとsingleの方がよいらしい
 end
 
 -- インデント設定
@@ -120,7 +121,7 @@ vim.api.nvim_create_autocmd("FileType", {
     group = "vimrc-settings",
     pattern = {"rst", "gitcommit"},
     callback = function()
-        vim.bo.spell = true
+        vim.opt_local.spell = true
     end
 })
 vim.cmd "colorscheme mine"

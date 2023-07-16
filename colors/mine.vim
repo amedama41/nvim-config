@@ -59,3 +59,10 @@ let colors_name = "mine"
 " :hi SpellErrors guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
 :hi NormalFloat guifg=White guibg=grey15 ctermfg=White ctermbg=Black
 :hi SpellBad ctermbg=red ctermfg=black
+:hi FloatBorder ctermbg=black
+:hi TelescopeNormal ctermbg=black
+:hi TelescopeBorder ctermbg=black
+:hi DiagnosticError ctermfg=magenta
+:hi DiagnosticFloatingError ctermfg=magenta
+:hi DiagnosticFloatingWarn ctermfg=yellow
+:hi DiagnosticFloatingInfo ctermfg=lightcyan
