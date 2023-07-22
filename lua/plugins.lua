@@ -48,13 +48,22 @@ vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('UserLspConfig', {}),
     callback = function(ev)
         local opts = { buffer = ev.buf }
+        local ok, builtin = pcall(require, "telescope.builtin")
+        if ok then
+            vim.keymap.set("n", "gr", builtin.lsp_references, opts)
+            vim.keymap.set("n", "<C-]>", builtin.lsp_definitions, opts)
+            vim.keymap.set("n", "gi", builtin.lsp_implementations, opts)
+            vim.keymap.set("n", "gt", builtin.lsp_type_definitions, opts)
+            vim.keymap.set("n", "<C-\\>d", builtin.diagnostics, opts)
+        else
+            vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+            vim.keymap.set("n", "<C-]>", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+            -- vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+            vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+            vim.keymap.set("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+        end
         vim.keymap.set("n", "K",  "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
         vim.keymap.set("n", "gF", "<cmd>lua vim.lsp.buf.format()<CR>", opts)
-        vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-        vim.keymap.set("n", "<C-]>", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-        -- vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-        vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-        vim.keymap.set("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
         vim.keymap.set("n", "gn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
         vim.keymap.set("n", "ga", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
         vim.keymap.set("n", "ge", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)
@@ -149,22 +158,15 @@ end
 
 -- VFilerの設定
 local open_vfiler_terminal = function(dirpath)
-    local termbufinfo = nil
-    -- VFilerから開いたTerminalを探す
-    local termbufs = vim.fn.getbufinfo('term://*')
-    for key, bufinfo in pairs(termbufs) do
-        local filetype = vim.fn.getbufvar(bufinfo.bufnr, '&filetype')
-        if filetype == 'vfiler-terminal' then
-            termbufinfo = bufinfo
-            break
-        end
-    end
-    if termbufinfo == nil then
+    local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
+    local termbufs = vim.fn.getbufinfo(termname)
+    if next(termbufs) == nil then
         vim.cmd [[botright new]]
         vim.cmd("lcd " .. dirpath)
         vim.cmd [[terminal]]
-        vim.cmd [[set filetype=vfiler-terminal]]
+        vim.cmd("keepalt file " .. termname)
     else
+        local termbufinfo = termbufs[1]
         if termbufinfo.hidden == 0 then
             -- 表示済みの場合は表示中のWindowにフォーカスする
             local wids = vim.fn.win_findbuf(termbufinfo.bufnr)
@@ -245,6 +247,10 @@ if ok then
                 local item = view:get_item()
                 open_vfiler_terminal(item.parent.path)
             end,
+            ["<C-g>"] = function(vfiler, context, view)
+                local item = view:get_item()
+                print(item.path)
+            end,
             ["<C-r>"] = function(vfiler, context, view)
                 local linked = context.linked
                 if not (linked and linked:visible()) then
@@ -287,8 +293,10 @@ if ok then
     vim.keymap.set("n", "<C-\\>b", builtin.buffers, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>g", builtin.live_grep, keymap_opts)
+    vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
     vim.keymap.set("n", "<C-\\>m", builtin.marks, keymap_opts)
     vim.keymap.set("n", "<C-\\>q", builtin.quickfix, keymap_opts)
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
+    vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
 end
