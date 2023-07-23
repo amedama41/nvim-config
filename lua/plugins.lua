@@ -50,25 +50,36 @@ vim.api.nvim_create_autocmd('LspAttach', {
         local opts = { buffer = ev.buf }
         local ok, builtin = pcall(require, "telescope.builtin")
         if ok then
-            vim.keymap.set("n", "gr", builtin.lsp_references, opts)
-            vim.keymap.set("n", "<C-]>", builtin.lsp_definitions, opts)
-            vim.keymap.set("n", "gi", builtin.lsp_implementations, opts)
-            vim.keymap.set("n", "gt", builtin.lsp_type_definitions, opts)
-            vim.keymap.set("n", "<C-\\>d", builtin.diagnostics, opts)
+            vim.keymap.set("n", "glr", function()
+                builtin.lsp_references { fname_width = 50 }
+            end, opts)
+            vim.keymap.set("n", "<C-]>", function()
+                builtin.lsp_definitions { fname_width = 50 }
+            end, opts)
+            vim.keymap.set("n", "gli", function()
+                builtin.lsp_implementations { fname_width = 50 }
+            end, opts)
+            vim.keymap.set("n", "glt", function()
+                builtin.lsp_type_definitions { fname_width = 50 }
+            end, opts)
+            vim.keymap.set("n", "gld", builtin.diagnostics, opts)
+            vim.keymap.set("n", "gls", function()
+                builtin.lsp_document_symbols { symbols = { "class", "function", "method" } }
+            end, opts)
         else
-            vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-            vim.keymap.set("n", "<C-]>", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+            vim.keymap.set("n", "glr", vim.lsp.buf.references, opts)
+            vim.keymap.set("n", "<C-]>", vim.lsp.buf.definition, opts)
             -- vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-            vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-            vim.keymap.set("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+            vim.keymap.set("n", "gli", vim.lsp.buf.implementation, opts)
+            vim.keymap.set("n", "glt", vim.lsp.buf.type_definition, opts)
         end
-        vim.keymap.set("n", "K",  "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-        vim.keymap.set("n", "gF", "<cmd>lua vim.lsp.buf.format()<CR>", opts)
-        vim.keymap.set("n", "gn", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-        vim.keymap.set("n", "ga", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-        vim.keymap.set("n", "ge", "<cmd>lua vim.diagnostic.open_float()<CR>", opts)
-        vim.keymap.set("n", "g]", "<cmd>lua vim.diagnostic.goto_next()<CR>", opts)
-        vim.keymap.set("n", "g[", "<cmd>lua vim.diagnostic.goto_prev()<CR>", opts)
+        vim.keymap.set("n", "K",  vim.lsp.buf.hover, opts)
+        vim.keymap.set("n", "glf", vim.lsp.buf.format, opts)
+        vim.keymap.set("n", "gln", vim.lsp.buf.rename, opts)
+        vim.keymap.set("n", "gla", vim.lsp.buf.code_action, opts)
+        vim.keymap.set("n", "ge", vim.diagnostic.open_float, opts)
+        vim.keymap.set("n", "g]", vim.diagnostic.goto_next, opts)
+        vim.keymap.set("n", "g[", vim.diagnostic.goto_prev, opts)
     end
 })
 
@@ -157,13 +168,16 @@ if ok then
 end
 
 -- VFilerの設定
-local open_vfiler_terminal = function(dirpath)
+local open_vfiler_terminal = function(dirpath, args)
     local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
     local termbufs = vim.fn.getbufinfo(termname)
+    local job_id = nil
     if next(termbufs) == nil then
-        vim.cmd [[botright new]]
-        vim.cmd("lcd " .. dirpath)
-        vim.cmd [[terminal]]
+        vim.cmd [[
+            botright new
+            resize 15
+        ]]
+        job_id = vim.fn.termopen({vim.opt.shell:get()}, { cwd = dirpath })
         vim.cmd("keepalt file " .. termname)
     else
         local termbufinfo = termbufs[1]
@@ -176,11 +190,20 @@ local open_vfiler_terminal = function(dirpath)
         else
             -- 非表示の場合は画面分割で開く
             vim.cmd("botright sbuffer " .. termbufinfo.bufnr)
+            vim.cmd [[resize 15]]
         end
+        job_id = termbufinfo.variables.terminal_job_id
         -- VFilerで開いているディレクトリに移動する
         vim.fn.chansend(
-            termbufinfo.variables.terminal_job_id,
-            " cd " .. vim.fn.shellescape(dirpath) .. "\n")
+            job_id,
+            vim.api.nvim_replace_termcodes("<C-U>", true, true, true)
+            .. " cd " .. vim.fn.shellescape(dirpath)
+            .. vim.api.nvim_replace_termcodes("<CR>", true, true, true))
+    end
+    if args ~= "" then
+        vim.fn.chansend(
+            job_id,
+            args .. vim.api.nvim_replace_termcodes("<C-A>", true, true, true))
     end
     vim.cmd [[startinsert]]
 end
@@ -188,17 +211,57 @@ end
 local ok, vfiler_action = pcall(require, "vfiler/action")
 if ok then
     local vfiler_config = require("vfiler/config")
+    vfiler_config.unmap("<C-p>")
+    vfiler_config.unmap("b")
+    vfiler_config.unmap("B")
+    vfiler_config.unmap("D")
+    vfiler_config.unmap("v")
     vfiler_config.setup({
         options = {
             auto_cd = true,
             auto_resize = true,
+            columns = 'indent,icon,name,size,time',
             keep = true,
             name = "vfiler",
+            git = {
+                enabled = true,
+                ignored = false,
+                untracked = true,
+            },
         },
         mappings = {
-            ["l"] = vfiler_action.open,
+            ["gb"] = vfiler_action.list_bookmark,
+            ["gB"] = vfiler_action.add_bookmark,
+            ["gp"] = vfiler_action.toggle_auto_preview,
+            ["g/"] = vfiler_action.jump_to_root,
+            ["H"] = function(vfiler, context, view)
+                local selected_items = view:selected_items()
+                local args = ''
+                for _, item in pairs(selected_items) do
+                    if item.selected then
+                        args = args .. ' ' .. vim.fn.shellescape(item.path)
+                    end
+                end
+                vfiler_action.clear_selected_all(vfiler, context, view)
+                open_vfiler_terminal(selected_items[1].parent.path, args)
+            end,
+            ["ip"] = function(vfiler, context, view)
+                for key, item in pairs(view:selected_items()) do
+                    vim.fn.system("open -a preview " .. vim.fn.shellescape(item.path))
+                end
+                vfiler_action.clear_selected_all(vfiler, context, view)
+            end,
+            ["io"] = function(vfiler, context, view)
+                local cmd = "open -a VLC --args"
+                for key, item in pairs(view:selected_items()) do
+                    cmd = cmd .. " " .. vim.fn.shellescape(item.path)
+                end
+                vim.fn.system(cmd)
+                vfiler_action.clear_selected_all(vfiler, context, view)
+            end,
             ["j"] = vfiler_action.move_cursor_down,
             ["k"] = vfiler_action.move_cursor_up,
+            ["l"] = vfiler_action.open,
             ["o"] = function(vfiler, context, view)
                 local item = view:get_item()
                 if item.type == "directory" then
@@ -227,29 +290,9 @@ if ok then
                     vfiler_action.open_by_tabpage(vfiler, context, view)
                 end
             end,
-            ["gp"] = vfiler_action.toggle_auto_preview,
-            ["g/"] = vfiler_action.jump_to_root,
-            ["ip"] = function(vfiler, context, view)
-                for key, item in pairs(view:selected_items()) do
-                    vim.fn.system("open -a preview " .. vim.fn.shellescape(item.path))
-                end
-                vfiler_action.clear_selected_all(vfiler, context, view)
-            end,
-            ["io"] = function(vfiler, context, view)
-                local cmd = "open -a VLC --args"
-                for key, item in pairs(view:selected_items()) do
-                    cmd = cmd .. " " .. vim.fn.shellescape(item.path)
-                end
-                vim.fn.system(cmd)
-                vfiler_action.clear_selected_all(vfiler, context, view)
-            end,
-            ["H"] = function(vfiler, context, view)
-                local item = view:get_item()
-                open_vfiler_terminal(item.parent.path)
-            end,
             ["<C-g>"] = function(vfiler, context, view)
                 local item = view:get_item()
-                print(item.path)
+                print(item.name)
             end,
             ["<C-r>"] = function(vfiler, context, view)
                 local linked = context.linked
@@ -267,11 +310,9 @@ if ok then
             end,
         },
     })
-    vfiler_config.unmap("<C-p>")
-    vfiler_config.unmap("D")
     local keymap_opts = { noremap = true, silent = true }
-    local cmd = "VFiler -auto-cd -auto-resize -keep "
-    .. "-layout=left -name=explorer -width=30 -columns=indent,icon,name<CR>"
+    local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
+    .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
     vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
 end
 
@@ -290,7 +331,9 @@ if ok then
         },
     })
     local builtin = require("telescope.builtin")
-    vim.keymap.set("n", "<C-\\>b", builtin.buffers, keymap_opts)
+    vim.keymap.set("n", "<C-\\>b", function()
+        builtin.buffers { only_cwd = true, sort_mru = true }
+    end, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>g", builtin.live_grep, keymap_opts)
     vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
@@ -298,5 +341,6 @@ if ok then
     vim.keymap.set("n", "<C-\\>q", builtin.quickfix, keymap_opts)
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
+    vim.keymap.set("n", "<C-\\>t", builtin.tagstack, keymap_opts)
     vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
 end
