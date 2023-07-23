@@ -50,18 +50,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
         local opts = { buffer = ev.buf }
         local ok, builtin = pcall(require, "telescope.builtin")
         if ok then
-            vim.keymap.set("n", "glr", function()
-                builtin.lsp_references { fname_width = 50 }
-            end, opts)
-            vim.keymap.set("n", "<C-]>", function()
-                builtin.lsp_definitions { fname_width = 50 }
-            end, opts)
-            vim.keymap.set("n", "gli", function()
-                builtin.lsp_implementations { fname_width = 50 }
-            end, opts)
-            vim.keymap.set("n", "glt", function()
-                builtin.lsp_type_definitions { fname_width = 50 }
-            end, opts)
+            vim.keymap.set("n", "glr", builtin.lsp_references, opts)
+            vim.keymap.set("n", "<C-]>", builtin.lsp_definitions, opts)
+            vim.keymap.set("n", "gli", builtin.lsp_implementations, opts)
+            vim.keymap.set("n", "glt", builtin.lsp_type_definitions, opts)
             vim.keymap.set("n", "gld", builtin.diagnostics, opts)
             vim.keymap.set("n", "gls", function()
                 builtin.lsp_document_symbols { symbols = { "class", "function", "method" } }
@@ -323,6 +315,8 @@ if ok then
         defaults = {
             sorting_strategy = "ascending",
             layout_strategy = "vertical",
+            path_display = { "shorten" },
+            dynamic_preview_title = true,
             file_ignore_patterns = {
                 "^.git/",
                 "^.?venv/",
