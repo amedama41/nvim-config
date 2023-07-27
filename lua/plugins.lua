@@ -235,7 +235,7 @@ if ok then
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
-                open_vfiler_terminal(selected_items[1].parent.path, args)
+                open_vfiler_terminal(context.root.path, args)
             end,
             ["ip"] = function(vfiler, context, view)
                 for key, item in pairs(view:selected_items()) do
@@ -300,6 +300,7 @@ if ok then
                 linked:do_action(api.cd, path)
                 vfiler:focus() -- return current window
             end,
+            ["<C-j>"] = vfiler_action.jump_to_history_directory,
         },
     })
     local keymap_opts = { noremap = true, silent = true }

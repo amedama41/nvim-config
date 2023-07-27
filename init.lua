@@ -124,6 +124,15 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.opt_local.spell = true
     end
 })
+if vim.fn.executable("im-select") then
+    vim.api.nvim_create_autocmd("InsertLeave", {
+        group = "vimrc-settings",
+        pattern = "*",
+        callback = function()
+            vim.cmd [[silent !im-select com.apple.keylayout.ABC]]
+        end
+    })
+end
 vim.cmd "colorscheme mine"
 
 require "plugins"
