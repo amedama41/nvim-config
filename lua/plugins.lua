@@ -27,6 +27,9 @@ require("packer").startup(function(use)
     use "hrsh7th/vim-vsnip"
     use { "jose-elias-alvarez/null-ls.nvim", requires = "nvim-lua/plenary.nvim" }
 
+    -- Tree-sitter --
+    use "nvim-treesitter/nvim-treesitter"
+
     -- ファイラー
     use "obaland/vfiler.vim"
     -- Fuzzy finder
@@ -45,7 +48,7 @@ end)
 
 -- LSP関連の設定
 vim.api.nvim_create_autocmd('LspAttach', {
-    group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+    group = vim.api.nvim_create_augroup('lsp-settings', { clear = true }),
     callback = function(ev)
         local opts = { buffer = ev.buf }
         local ok, builtin = pcall(require, "telescope.builtin")
@@ -54,7 +57,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
             vim.keymap.set("n", "<C-]>", builtin.lsp_definitions, opts)
             vim.keymap.set("n", "gli", builtin.lsp_implementations, opts)
             vim.keymap.set("n", "glt", builtin.lsp_type_definitions, opts)
-            vim.keymap.set("n", "gld", builtin.diagnostics, opts)
+            vim.keymap.set("n", "gld", function()
+                builtin.diagnostics { bufnr = 0 }
+            end, opts)
+            vim.keymap.set("n", "glD", function()
+                builtin.diagnostics { root_dir = true }
+            end, opts)
             vim.keymap.set("n", "gls", function()
                 builtin.lsp_document_symbols { symbols = { "class", "function", "method" } }
             end, opts)
@@ -66,7 +74,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
             vim.keymap.set("n", "glt", vim.lsp.buf.type_definition, opts)
         end
         vim.keymap.set("n", "K",  vim.lsp.buf.hover, opts)
-        vim.keymap.set("n", "glf", vim.lsp.buf.format, opts)
+        vim.keymap.set("n", "glf", function()
+            vim.lsp.buf.format { timeout_ms = 10000 }
+        end, opts)
         vim.keymap.set("n", "gln", vim.lsp.buf.rename, opts)
         vim.keymap.set("n", "gla", vim.lsp.buf.code_action, opts)
         vim.keymap.set("n", "ge", vim.diagnostic.open_float, opts)
@@ -109,6 +119,7 @@ local ok, null_ls = pcall(require, "null-ls")
 if ok then
     local venv_path = "./.venv/bin"
     null_ls.setup({
+        diagnostics_format = "#{m} [#{s}]",
         sources = {
             null_ls.builtins.formatting.black.with {
                 prefer_local = venv_path
@@ -145,7 +156,7 @@ if ok then
             ["<C-l>"] = cmp.mapping.complete(),
             ["<C-b>"] = cmp.mapping.scroll_docs(-4),
             ["<C-f>"] = cmp.mapping.scroll_docs(4),
-            ["<C-e>"] = cmp.mapping.abort(),
+            ["<C-c>"] = cmp.mapping.close(),
             ["<CR>"] = cmp.mapping.confirm { select = true },
         }),
         sources = cmp.config.sources({
@@ -157,6 +168,14 @@ if ok then
             { name = "buffer" }
         })
     })
+end
+
+local ok, treesitter = pcall(require, "nvim-treesitter.configs")
+if ok then
+    treesitter.setup {
+        highlight = { enable = true },
+        indent = { enable = true },
+    }
 end
 
 -- VFilerの設定
@@ -215,6 +234,7 @@ if ok then
             columns = 'indent,icon,name,size,time',
             keep = true,
             name = "vfiler",
+            sort = "extension",
             git = {
                 enabled = true,
                 ignored = false,
@@ -224,6 +244,8 @@ if ok then
         mappings = {
             ["gb"] = vfiler_action.list_bookmark,
             ["gB"] = vfiler_action.add_bookmark,
+            ["gj"] = vfiler_action.move_cursor_down_sibling,
+            ["gk"] = vfiler_action.move_cursor_up_sibling,
             ["gp"] = vfiler_action.toggle_auto_preview,
             ["g/"] = vfiler_action.jump_to_root,
             ["H"] = function(vfiler, context, view)
@@ -332,6 +354,7 @@ if ok then
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>g", builtin.live_grep, keymap_opts)
     vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
+    vim.keymap.set("n", "<C-\\>l", builtin.loclist, keymap_opts)
     vim.keymap.set("n", "<C-\\>m", builtin.marks, keymap_opts)
     vim.keymap.set("n", "<C-\\>q", builtin.quickfix, keymap_opts)
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)

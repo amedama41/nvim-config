@@ -23,28 +23,28 @@ let colors_name = "mine"
 :hi SpecialKey guifg=yellowgreen ctermfg=darkgray
 " :hi StatusLine guibg=#c2bfa5 guifg=black gui=none cterm=bold,reverse
 " :hi StatusLineNC guibg=#c2bfa5 guifg=grey40 gui=none cterm=reverse
-" :hi Title guifg=gold gui=bold cterm=bold ctermfg=yellow
+:hi Title guifg=gold gui=bold cterm=bold ctermfg=yellow
 :hi Statement guifg=CornflowerBlue ctermfg=yellow cterm=bold
 :hi Visual gui=none guifg=khaki guibg=olivedrab ctermbg=darkyellow term=reverse
 " :hi WarningMsg guifg=salmon ctermfg=1
 " :hi String guifg=SkyBlue ctermfg=grey
 :hi Comment term=bold ctermfg=darkgray guifg=grey40
 :hi Constant guifg=#ffa0a0 ctermfg=magenta
-" :hi Special guifg=darkkhaki ctermfg=brown
-" :hi Identifier guifg=salmon ctermfg=red
+:hi Special guifg=darkkhaki ctermfg=190 " yellow2
+:hi Identifier cterm=none guifg=salmon ctermfg=white
 :hi Include guifg=red ctermfg=darkcyan cterm=bold
 :hi PreProc guifg=red guibg=White ctermfg=darkcyan cterm=bold
 :hi Operator guifg=Red ctermfg=lightgreen
 " :hi Define guifg=gold gui=bold ctermfg=yellow
-:hi Type guifg=CornflowerBlue ctermfg=lightcyan
-:hi Function guifg=navajowhite cterm=bold
+:hi Type guifg=CornflowerBlue ctermfg=lightcyan cterm=bold
+:hi Function guifg=navajowhite cterm=bold ctermfg=14 " aqua
 :hi Structure guifg=green ctermfg=lightgreen
 :hi LineNr guifg=grey50 ctermfg=darkgray
-:hi Pmenu ctermbg=DarkGray
-:hi PmenuSel ctermbg=DarkRed
+:hi Pmenu ctermbg=black ctermfg=white
+:hi PmenuSel ctermbg=DarkRed ctermfg=white
 " :hi Ignore guifg=grey40 cterm=bold ctermfg=7
 " :hi Todo guifg=orangered guibg=yellow2
-" :hi Directory ctermfg=darkcyan
+:hi Directory ctermfg=lightcyan
 " :hi ErrorMsg cterm=bold guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
 " :hi VisualNOS cterm=bold,underline
 :hi WildMenu ctermfg=White ctermbg=DarkRed
@@ -53,16 +53,33 @@ let colors_name = "mine"
 :hi DiffChange term=bold ctermbg=16
 " :hi DiffDelete cterm=bold ctermfg=4 ctermbg=6
 " :hi DiffText cterm=bold ctermbg=1
-:hi DiffText term=reverse cterm=bold ctermbg=1
+:hi DiffText term=reverse cterm=bold ctermbg=52
 " :hi Underlined cterm=underline ctermfg=5
 " :hi Error guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
 " :hi SpellErrors guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
-:hi NormalFloat guifg=White guibg=grey15 ctermfg=White ctermbg=Black
 :hi SpellBad ctermbg=red ctermfg=black
+:hi NormalFloat guifg=White guibg=grey15 ctermfg=White ctermbg=Black
 :hi FloatBorder ctermbg=black
 :hi TelescopeNormal ctermbg=black
 :hi TelescopeBorder ctermbg=black
-:hi DiagnosticError ctermfg=magenta
-:hi DiagnosticFloatingError ctermfg=magenta
-:hi DiagnosticFloatingWarn ctermfg=yellow
-:hi DiagnosticFloatingInfo ctermfg=lightcyan
+:hi DiagnosticError ctermfg=203 " indianred1
+:hi DiagnosticWarn ctermfg=221 " lightgoldrod2
+:hi DiagnosticInfo ctermfg=147 " lightsteelblud
+:hi DiagnosticHint ctermfg=251 " grey78
+:hi DiagnosticOK ctermfg=112 " chartreuse2
+:hi @parameter cterm=italic
+:hi @variable.builtin ctermfg=yellow " khaki1
+:hi @keyword.operator ctermfg=lightgreen cterm=none
+:hi @constant guifg=#ffa0a0 cterm=bold ctermfg=225 " thistle1
+:hi link @constructor Type
+:hi link @function.builtin Function
+:hi link @string.documentation Comment
+:hi link @constant.builtin @constant
+:hi @text.emphasis cterm=italic ctermfg=lightgreen
+:hi @text.strong cterm=bold ctermfg=red
+:hi @text.strike ctermfg=gray
+:hi @text.reference cterm=underline ctermfg=magenta
+:hi @text.escape ctermfg=gray
+:hi @text.literal ctermfg=lightcyan
+:hi @text.quote ctermfg=gray
+:hi @text.title.1 guifg=gold gui=bold cterm=bold,underline ctermfg=yellow
