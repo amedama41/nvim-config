@@ -329,11 +329,36 @@ if ok then
     local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
     .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
     vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
+    vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
+    vim.api.nvim_create_autocmd("FileType", {
+        group = "vfiler-settings",
+        pattern = {"vfiler"},
+        callback = function()
+            vim.keymap.set("x", "<Space>", function()
+                local first = vim.fn.line("v")
+                local last = vim.fn.line(".")
+                if first > last then
+                    first, last = last, first
+                end
+                local view = require('vfiler/vfiler').get(vim.fn.bufnr("%"))._view
+                first = math.max(first, view:top_lnum())
+                for i = first, last do
+                    local item = view:get_item(i)
+                    if item then
+                        item.selected = not item.selected
+                    end
+                end
+                view:redraw()
+                vim.cmd("normal! " .. vim.api.nvim_replace_termcodes("<Esc>", true, true, true))
+            end, { buffer = true })
+        end
+    })
 end
 
 -- telescopeの設定
 local ok, telescope = pcall(require, "telescope")
 if ok then
+    local actions = require("telescope.actions")
     telescope.setup({
         defaults = {
             sorting_strategy = "ascending",
@@ -344,6 +369,28 @@ if ok then
                 "^.git/",
                 "^.?venv/",
                 "%.pyc",
+            },
+            mappings = {
+                n = {
+                    ["<C-l>"] = actions.smart_send_to_loclist,
+                    ["<C-q>"] = actions.smart_send_to_qflist,
+                },
+                i = {
+                    ["<C-l>"] = actions.smart_send_to_loclist,
+                    ["<C-q>"] = actions.smart_send_to_qflist,
+                },
+            },
+        },
+        pickers = {
+            buffers = {
+                mappings = {
+                    n = {
+                        ["<C-x>"] = actions.delete_buffer,
+                    },
+                    i = {
+                        ["<C-x>"] = actions.delete_buffer,
+                    },
+                },
             },
         },
     })
