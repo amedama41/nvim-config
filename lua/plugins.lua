@@ -265,14 +265,6 @@ if ok then
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
             end,
-            ["io"] = function(vfiler, context, view)
-                local cmd = "open -a VLC --args"
-                for key, item in pairs(view:selected_items()) do
-                    cmd = cmd .. " " .. vim.fn.shellescape(item.path)
-                end
-                vim.fn.system(cmd)
-                vfiler_action.clear_selected_all(vfiler, context, view)
-            end,
             ["j"] = vfiler_action.move_cursor_down,
             ["k"] = vfiler_action.move_cursor_up,
             ["l"] = vfiler_action.open,
@@ -304,9 +296,19 @@ if ok then
                     vfiler_action.open_by_tabpage(vfiler, context, view)
                 end
             end,
+            ["<C-d>"] = vfiler_action.scroll_down_preview,
             ["<C-g>"] = function(vfiler, context, view)
                 local item = view:get_item()
                 print(item.name)
+            end,
+            ["<C-j>"] = vfiler_action.jump_to_history_directory,
+            ["<C-o>"] = function(vfiler, context, view)
+                local history = context:directory_history()
+                if #history == 0 then
+                    return
+                end
+                local utilities = require("vfiler/actions/utilities")
+                utilities.cd(vfiler, context, view, history[1])
             end,
             ["<C-r>"] = function(vfiler, context, view)
                 local linked = context.linked
@@ -316,13 +318,13 @@ if ok then
 
                 local item = view:get_item()
                 local path = vim.fn.fnamemodify(item.path, ":p:h")
-                local api = require("vfiler/actions/api")
+                local utilities = require("vfiler/actions/utilities")
                 linked:focus()
                 linked:update(context)
-                linked:do_action(api.cd, path)
+                linked:do_action(utilities.cd, path)
                 vfiler:focus() -- return current window
             end,
-            ["<C-j>"] = vfiler_action.jump_to_history_directory,
+            ["<C-u>"] = vfiler_action.scroll_up_preview,
         },
     })
     local keymap_opts = { noremap = true, silent = true }

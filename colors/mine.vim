@@ -21,8 +21,8 @@ let colors_name = "mine"
 " :hi Question guifg=springgreen ctermfg=green
 " :hi Search guibg=peru guifg=wheat cterm=none ctermfg=grey ctermbg=blue
 :hi SpecialKey guifg=yellowgreen ctermfg=darkgray
-" :hi StatusLine guibg=#c2bfa5 guifg=black gui=none cterm=bold,reverse
-" :hi StatusLineNC guibg=#c2bfa5 guifg=grey40 gui=none cterm=reverse
+:hi StatusLine guibg=#c2bfa5 guifg=black gui=none cterm=bold,reverse ctermfg=yellow
+:hi StatusLineNC guibg=#c2bfa5 guifg=grey40 gui=none cterm=reverse
 :hi Title guifg=gold gui=bold cterm=bold ctermfg=yellow
 :hi Statement guifg=CornflowerBlue ctermfg=yellow cterm=bold
 :hi Visual gui=none guifg=khaki guibg=olivedrab ctermbg=darkyellow term=reverse

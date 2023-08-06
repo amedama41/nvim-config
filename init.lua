@@ -16,6 +16,7 @@ vim.opt.laststatus = 2  -- ステータスラインの常時表示
 vim.opt.statusline = "%n:%m%r%w%q%t"
 .. "%=[%{(&fileencoding!=''?&fileencoding:&encoding)}/%{&fileformat}]"
 .. "[%Y][%04l,%03v][%p%%]"
+vim.opt.guicursor = "a:block"
 vim.opt.cursorline = true   -- カレント行のハイライト
 vim.opt.scrolloff = 3       -- カーソル上下に必ず表示する行数
 vim.opt.wrap = true         -- ウィンドウ幅より長い行の折り返し
