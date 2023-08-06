@@ -96,9 +96,10 @@ vim.api.nvim_set_keymap("t", "<C-\\>l", "<C-\\><C-n><C-w>l", keymap_opt)
 vim.api.nvim_set_keymap("t", "<C-\\>h", "<C-\\><C-n><C-w>h", keymap_opt)
 vim.api.nvim_set_keymap("t", "<C-\\>q", "<C-\\><C-n><C-w>q", keymap_opt)
 
-vim.api.nvim_create_augroup("vimrc-settings", { clear = true })
+local vimrc_settings_group = "vimrc-settings"
+vim.api.nvim_create_augroup(vimrc_settings_group, { clear = true })
 vim.api.nvim_create_autocmd("BufReadPost", {
-    group = "vimrc-settings",
+    group = vimrc_settings_group,
     pattern = "*",
     callback = function()
         if vim.opt.fileencoding:get() == "iso-2022-jp" 
@@ -108,7 +109,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end
 })
 vim.api.nvim_create_autocmd("TermOpen", {
-    group = "vimrc-settings",
+    group = vimrc_settings_group,
     pattern = "*",
     callback = function()
         if vim.opt.buftype:get() == "terminal" then
@@ -118,8 +119,18 @@ vim.api.nvim_create_autocmd("TermOpen", {
         end
     end
 })
+vim.api.nvim_create_autocmd("TabClosed", {
+    group = vimrc_settings_group,
+    pattern = "*",
+    callback = function()
+        local current = vim.fn.tabpagenr()
+        if current ~= 1 and current == tonumber(vim.fn.expand("<afile>")) then
+            vim.cmd [[tabprevious]]
+        end
+    end
+})
 vim.api.nvim_create_autocmd("FileType", {
-    group = "vimrc-settings",
+    group = vimrc_settings_group,
     pattern = {"rst", "gitcommit"},
     callback = function()
         vim.opt_local.spell = true
@@ -127,13 +138,14 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 if vim.fn.executable("im-select") then
     vim.api.nvim_create_autocmd("InsertLeave", {
-        group = "vimrc-settings",
+        group = vimrc_settings_group,
         pattern = "*",
         callback = function()
             vim.cmd [[silent !im-select com.apple.keylayout.ABC]]
         end
     })
 end
+
 vim.cmd "colorscheme mine"
 
 require "plugins"

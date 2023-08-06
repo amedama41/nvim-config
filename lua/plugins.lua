@@ -296,6 +296,7 @@ if ok then
                     vfiler_action.open_by_tabpage(vfiler, context, view)
                 end
             end,
+            ["<C-d>"] = vfiler_action.scroll_down_preview,
             ["<C-g>"] = function(vfiler, context, view)
                 local item = view:get_item()
                 print(item.name)
@@ -323,6 +324,7 @@ if ok then
                 linked:do_action(utilities.cd, path)
                 vfiler:focus() -- return current window
             end,
+            ["<C-u>"] = vfiler_action.scroll_up_preview,
         },
     })
     local keymap_opts = { noremap = true, silent = true }
