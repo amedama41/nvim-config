@@ -91,47 +91,49 @@ if ok then
 end
 local ok, mason_lspconfig = pcall(require, "mason-lspconfig")
 if ok then
-    mason_lspconfig.setup_handlers({ function(server)
-        local lspconfig = require("lspconfig")
-        if server == "pyright" then
+    local lspconfig = require("lspconfig")
+    mason_lspconfig.setup_handlers({
+        function(server)
+            lspconfig[server].setup {
+                capabilities = require("cmp_nvim_lsp").default_capabilities(),
+            }
+        end,
+        ["pyright"] = function()
             lspconfig.pyright.setup {
                 capabilities = require("cmp_nvim_lsp").default_capabilities(),
                 settings = {
                     python = {
-                        venvPath = ".",
-                        venv = ".venv",
                         pythonPath = "./.venv/bin/python",
-                        analysis = {
-                            extraPaths = {"."}
-                        }
                     }
-                }
+                },
             }
-        else
-            lspconfig[server].setup {
-                capabilities = require("cmp_nvim_lsp").default_capabilities()
+        end,
+        ["tsserver"] = function()
+            lspconfig.tsserver.setup {
+                capabilities = require("cmp_nvim_lsp").default_capabilities(),
+                filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
             }
-        end
-    end })
+        end,
+    })
 end
 
 local ok, null_ls = pcall(require, "null-ls")
 if ok then
-    local venv_path = "./.venv/bin"
+    local bin_path = "./.venv/bin"
     null_ls.setup({
         diagnostics_format = "#{m} [#{s}]",
         sources = {
             null_ls.builtins.formatting.black.with {
-                prefer_local = venv_path
+                prefer_local = bin_path
             },
             null_ls.builtins.formatting.isort.with {
-                prefer_local = venv_path
+                prefer_local = bin_path
             },
             null_ls.builtins.diagnostics.flake8.with {
-                prefer_local = venv_path
+                prefer_local = bin_path
             },
             null_ls.builtins.diagnostics.mypy.with {
-                prefer_local = venv_path
+                prefer_local = bin_path
             },
         }
     })
@@ -296,7 +298,13 @@ if ok then
                     vfiler_action.open_by_tabpage(vfiler, context, view)
                 end
             end,
-            ["<C-d>"] = vfiler_action.scroll_down_preview,
+            ["<C-d>"] = function(vfiler, context, view)
+                if context.in_preview.preview then
+                    vfiler_action.scroll_down_preview(vfiler, context, view)
+                else
+                    vim.cmd("normal! \x04")
+                end
+            end,
             ["<C-g>"] = function(vfiler, context, view)
                 local item = view:get_item()
                 print(item.name)
@@ -324,7 +332,13 @@ if ok then
                 linked:do_action(utilities.cd, path)
                 vfiler:focus() -- return current window
             end,
-            ["<C-u>"] = vfiler_action.scroll_up_preview,
+            ["<C-u>"] = function(vfiler, context, view)
+                if context.in_preview.preview then
+                    vfiler_action.scroll_up_preview(vfiler, context, view)
+                else
+                    vim.cmd("normal! \x15")
+                end
+            end,
         },
     })
     local keymap_opts = { noremap = true, silent = true }
