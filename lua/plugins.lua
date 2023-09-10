@@ -205,6 +205,7 @@ local open_vfiler_terminal = function(dirpath, args)
             vim.cmd("botright sbuffer " .. termbufinfo.bufnr)
             vim.cmd [[resize 15]]
         end
+        vim.cmd("lcd " .. dirpath)
         job_id = termbufinfo.variables.terminal_job_id
         -- VFilerで開いているディレクトリに移動する
         vim.fn.chansend(
@@ -423,5 +424,6 @@ if ok then
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
     vim.keymap.set("n", "<C-\\>t", builtin.tagstack, keymap_opts)
+    vim.keymap.set("n", "<C-\\>*", builtin.grep_string, keymap_opts)
     vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
 end
