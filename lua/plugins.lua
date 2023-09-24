@@ -25,7 +25,7 @@ require("packer").startup(function(use)
     use "hrsh7th/nvim-cmp"
     use "hrsh7th/cmp-nvim-lsp"
     use "hrsh7th/vim-vsnip"
-    use { "jose-elias-alvarez/null-ls.nvim", requires = "nvim-lua/plenary.nvim" }
+    use { "creativenull/efmls-configs-nvim", tag = "v1.*", requires = "neovim/nvim-lspconfig" }
 
     -- Tree-sitter --
     use "nvim-treesitter/nvim-treesitter"
@@ -114,28 +114,32 @@ if ok then
                 filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
             }
         end,
-    })
-end
-
-local ok, null_ls = pcall(require, "null-ls")
-if ok then
-    local bin_path = "./.venv/bin"
-    null_ls.setup({
-        diagnostics_format = "#{m} [#{s}]",
-        sources = {
-            null_ls.builtins.formatting.black.with {
-                prefer_local = bin_path
-            },
-            null_ls.builtins.formatting.isort.with {
-                prefer_local = bin_path
-            },
-            null_ls.builtins.diagnostics.flake8.with {
-                prefer_local = bin_path
-            },
-            null_ls.builtins.diagnostics.mypy.with {
-                prefer_local = bin_path
-            },
-        }
+        ["efm"] = function()
+            local efmls_configs_ok, _ = pcall(require, "efmls-configs")
+            if efmls_configs_ok then
+                lspconfig.efm.setup {
+                    init_options = {
+                        documentFormatting = true,
+                        documentRangeFormatting = true,
+                    },
+                    settings = {
+                        rootMarkers = {
+                            ".git/",
+                            "pyproject.toml",
+                            "requirements.txt",
+                        },
+                        languages = {
+                            python = {
+                                require("efmls-configs.linters.mypy"),
+                                require("efmls-configs.linters.flake8"),
+                                require("efmls-configs.formatters.black"),
+                                require("efmls-configs.formatters.isort"),
+                            },
+                        },
+                    },
+                }
+            end
+        end,
     })
 end
 
