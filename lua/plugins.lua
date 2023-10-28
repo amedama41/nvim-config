@@ -346,6 +346,31 @@ if ok then
             end,
         },
     })
+    local menu_action = require('vfiler/extensions/menu/action')
+    require("vfiler/extensions/menu/config").setup({
+        options = {
+            floating = {
+                minwidth = 100,
+            }
+        },
+        mappings = {
+            ["<C-p>"] = menu_action.loop_cursor_up,
+            ["<C-n>"] = menu_action.loop_cursor_down,
+        },
+    })
+    local bookmark_action = require('vfiler/extensions/bookmark/action')
+    require("vfiler/extensions/bookmark/config").setup({
+        options = {
+            floating = {
+                minwidth = 100,
+            }
+        },
+        mappings = {
+            ["o"] = bookmark_action.open_tree,
+            ["<C-p>"] = bookmark_action.smart_cursor_up,
+            ["<C-n>"] = bookmark_action.smart_cursor_down,
+        },
+    })
     local keymap_opts = { noremap = true, silent = true }
     local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
     .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
