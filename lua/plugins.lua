@@ -49,7 +49,7 @@ require("packer").startup(function(use)
 end)
 
 vim.cmd [[
-    let g:deol#prompt_pattern = "Macbook$"
+    let g:deol#prompt_pattern = "Macbook\\$\\s"
     let g:deol#floating_border = "rounded"
     let g:deol#external_history_path = "~/.bash_history"
     let g:deol#shell_history_max = 10000
@@ -409,6 +409,9 @@ if ok then
     local keymap_opts = { noremap = true, silent = true }
     local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
     .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
+    vim.keymap.set("n", "<C-\\><Space>", function()
+        open_vfiler_deol(vim.fn.getcwd())
+    end, keymap_opts)
     vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
     vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
