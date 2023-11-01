@@ -34,6 +34,8 @@ require("packer").startup(function(use)
     use "obaland/vfiler.vim"
     -- Fuzzy finder
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
+    -- Terminal
+    use "Shougo/deol.nvim"
     -- Git diff
     use "sindrets/diffview.nvim"
     -- Terraform
@@ -45,6 +47,13 @@ require("packer").startup(function(use)
         require("packer").sync()
     end
 end)
+
+vim.cmd [[
+    let g:deol#prompt_pattern = "Macbook$"
+    let g:deol#floating_border = "rounded"
+    let g:deol#external_history_path = "~/.bash_history"
+    let g:deol#shell_history_max = 10000
+]]
 
 -- LSP関連の設定
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -145,6 +154,8 @@ end
 
 local ok, cmp = pcall(require, "cmp")
 if ok then
+    local feedkeys = require('cmp.utils.feedkeys')
+    local keymap = require('cmp.utils.keymap')
     cmp.setup({
         -- REQUIRED - you must specify a snippet engine
         snippet = {
@@ -156,15 +167,26 @@ if ok then
             -- completion = cmp.config.window.bordered(),
             -- documentation = cmp.config.window.bordered(),
         },
-        mapping = cmp.mapping.preset.insert({
+        mapping = {
             ["<C-p>"] = cmp.mapping.select_prev_item(),
             ["<C-n>"] = cmp.mapping.select_next_item(),
             ["<C-l>"] = cmp.mapping.complete(),
             ["<C-b>"] = cmp.mapping.scroll_docs(-4),
             ["<C-f>"] = cmp.mapping.scroll_docs(4),
             ["<C-c>"] = cmp.mapping.close(),
-            ["<CR>"] = cmp.mapping.confirm { select = true },
-        }),
+            ["<CR>"] = function(fallback)
+                -- https://github.com/hrsh7th/nvim-cmp/issues/1326
+                if vim.fn.pumvisible() == 1 then
+                    if vim.fn.complete_info({"selected"}).selected == -1 then
+                        feedkeys.call(keymap.t("<CR>"), "in")
+                    else
+                        feedkeys.call(keymap.t("<C-X><C-Z>"), "in")
+                    end
+                else
+                    cmp.mapping.confirm({ select = false })(fallback)
+                end
+            end,
+        },
         sources = cmp.config.sources({
             { name = "nvim_lsp" },
             -- { name = "buffer" },
@@ -185,6 +207,19 @@ if ok then
 end
 
 -- VFilerの設定
+local open_vfiler_deol = function(dirpath, args)
+    local columns = vim.opt.columns:get()
+    local lines = vim.opt.lines:get()
+    vim.cmd(
+        "Deol -no-start-insert -split=floating -wincol=1 -winrow=1"
+        .. " -winwidth=" .. (columns - 4)
+        .. " -winheight=" .. (lines - 6)
+        .. " -cwd=" .. dirpath
+    )
+    vim.cmd [[normal! G]]
+    vim.cmd [[DeolEdit]]
+end
+
 local open_vfiler_terminal = function(dirpath, args)
     local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
     local termbufs = vim.fn.getbufinfo(termname)
@@ -264,7 +299,7 @@ if ok then
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
-                open_vfiler_terminal(context.root.path, args)
+                open_vfiler_deol(context.root.path, args)
             end,
             ["ip"] = function(vfiler, context, view)
                 for key, item in pairs(view:selected_items()) do
