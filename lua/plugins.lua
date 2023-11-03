@@ -36,6 +36,7 @@ require("packer").startup(function(use)
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
     -- Terminal
     use "Shougo/deol.nvim"
+    use "amedama41/scallop.nvim"
     -- Git diff
     use "sindrets/diffview.nvim"
     -- Terraform
@@ -206,61 +207,61 @@ if ok then
     }
 end
 
--- VFilerの設定
-local open_vfiler_deol = function(dirpath, args)
-    local columns = vim.opt.columns:get()
-    local lines = vim.opt.lines:get()
-    vim.cmd(
-        "Deol -no-start-insert -split=floating -wincol=1 -winrow=1"
-        .. " -winwidth=" .. (columns - 4)
-        .. " -winheight=" .. (lines - 6)
-        .. " -cwd=" .. dirpath
-    )
-    vim.cmd [[normal! G]]
-    vim.cmd [[DeolEdit]]
-end
-
-local open_vfiler_terminal = function(dirpath, args)
-    local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
-    local termbufs = vim.fn.getbufinfo(termname)
-    local job_id = nil
-    if next(termbufs) == nil then
-        vim.cmd [[
-            botright new
-            resize 15
-        ]]
-        job_id = vim.fn.termopen({vim.opt.shell:get()}, { cwd = dirpath })
-        vim.cmd("keepalt file " .. termname)
-    else
-        local termbufinfo = termbufs[1]
-        if termbufinfo.hidden == 0 then
-            -- 表示済みの場合は表示中のWindowにフォーカスする
-            local wids = vim.fn.win_findbuf(termbufinfo.bufnr)
-            if next(wids) ~= nil then
-                vim.fn.win_gotoid(wids[1])
-            end
+local open_terminal = nil
+local ok, scallop = pcall(require, "scallop")
+if ok then
+    open_terminal = function(dirpath, args)
+        -- local columns = vim.opt.columns:get()
+        -- local lines = vim.opt.lines:get()
+        scallop.start_terminal_edit(args, dirpath)
+    end
+else
+    open_terminal = function(dirpath, args)
+        local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
+        local termbufs = vim.fn.getbufinfo(termname)
+        local job_id = nil
+        if next(termbufs) == nil then
+            vim.cmd [[
+                botright new
+                resize 15
+            ]]
+            job_id = vim.fn.termopen({vim.opt.shell:get()}, { cwd = dirpath })
+            vim.cmd("keepalt file " .. termname)
         else
-            -- 非表示の場合は画面分割で開く
-            vim.cmd("botright sbuffer " .. termbufinfo.bufnr)
-            vim.cmd [[resize 15]]
+            local termbufinfo = termbufs[1]
+            if termbufinfo.hidden == 0 then
+                -- 表示済みの場合は表示中のWindowにフォーカスする
+                local wids = vim.fn.win_findbuf(termbufinfo.bufnr)
+                if next(wids) ~= nil then
+                    vim.fn.win_gotoid(wids[1])
+                end
+            else
+                -- 非表示の場合は画面分割で開く
+                vim.cmd("botright sbuffer " .. termbufinfo.bufnr)
+                vim.cmd [[resize 15]]
+            end
+            vim.cmd("lcd " .. dirpath)
+            job_id = termbufinfo.variables.terminal_job_id
+            -- VFilerで開いているディレクトリに移動する
+            vim.fn.chansend(
+                job_id,
+                vim.api.nvim_replace_termcodes("<C-U>", true, true, true)
+                .. " cd " .. vim.fn.shellescape(dirpath)
+                .. vim.api.nvim_replace_termcodes("<CR>", true, true, true))
         end
-        vim.cmd("lcd " .. dirpath)
-        job_id = termbufinfo.variables.terminal_job_id
-        -- VFilerで開いているディレクトリに移動する
-        vim.fn.chansend(
-            job_id,
-            vim.api.nvim_replace_termcodes("<C-U>", true, true, true)
-            .. " cd " .. vim.fn.shellescape(dirpath)
-            .. vim.api.nvim_replace_termcodes("<CR>", true, true, true))
+        if args ~= "" then
+            vim.fn.chansend(
+                job_id,
+                args .. vim.api.nvim_replace_termcodes("<C-A>", true, true, true))
+        end
+        vim.cmd [[startinsert]]
     end
-    if args ~= "" then
-        vim.fn.chansend(
-            job_id,
-            args .. vim.api.nvim_replace_termcodes("<C-A>", true, true, true))
-    end
-    vim.cmd [[startinsert]]
 end
+vim.keymap.set('n', '<C-\\><C-t>', function()
+    open_terminal(vim.fn.getcwd())
+end, { noremap = true, silent = true })
 
+-- VFilerの設定
 local ok, vfiler_action = pcall(require, "vfiler/action")
 if ok then
     local vfiler_config = require("vfiler/config")
@@ -299,7 +300,7 @@ if ok then
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
-                open_vfiler_deol(context.root.path, args)
+                open_terminal(context.root.path, args)
             end,
             ["ip"] = function(vfiler, context, view)
                 for key, item in pairs(view:selected_items()) do
@@ -409,9 +410,6 @@ if ok then
     local keymap_opts = { noremap = true, silent = true }
     local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
     .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
-    vim.keymap.set("n", "<C-\\><Space>", function()
-        open_vfiler_deol(vim.fn.getcwd())
-    end, keymap_opts)
     vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
     vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
