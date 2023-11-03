@@ -210,6 +210,12 @@ end
 local open_terminal = nil
 local ok, scallop = pcall(require, "scallop")
 if ok then
+    require("scallop.configs").setup({
+        options = {
+            prompt_pattern = "Macbook\\$\\s",
+            history_filepath = "~/.bash_history",
+        },
+    })
     open_terminal = function(dirpath, args)
         -- local columns = vim.opt.columns:get()
         -- local lines = vim.opt.lines:get()
