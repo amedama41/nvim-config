@@ -264,7 +264,7 @@ else
     end
 end
 vim.keymap.set('n', '<C-\\><C-t>', function()
-    open_terminal(vim.fn.getcwd())
+    open_terminal()
 end, { noremap = true, silent = true })
 
 -- VFilerの設定
