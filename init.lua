@@ -113,9 +113,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     callback = function()
         if vim.opt.buftype:get() == "terminal" then
-            vim.opt_local.list = false
-            vim.opt_local.scrolloff = 0 -- 画面表示がぶれる問題用
-            vim.cmd("startinsert")
+            vim.opt_local.scrollback = 50000
         end
     end
 })
