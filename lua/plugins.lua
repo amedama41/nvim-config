@@ -221,6 +221,18 @@ if ok then
         -- local lines = vim.opt.lines:get()
         scallop.start_terminal_edit(args, dirpath)
     end
+    vim.api.nvim_create_autocmd('FileType', {
+        pattern = 'bash',
+        callback = function()
+            -- vim.lsp.set_log_level(0)
+            vim.lsp.start({
+                name = 'bashls',
+                capabilities = require("cmp_nvim_lsp").default_capabilities(),
+                cmd = {'bash-language-server', 'start'},
+                -- settings = { logLevel = 'debug' },
+            })
+        end,
+    })
 else
     open_terminal = function(dirpath, args)
         local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
