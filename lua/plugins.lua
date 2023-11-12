@@ -214,6 +214,7 @@ if ok then
         options = {
             prompt_pattern = "Macbook\\$\\s",
             history_filepath = "~/.bash_history",
+            floating_border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" },
         },
     })
     open_terminal = function(dirpath, args)
@@ -318,6 +319,9 @@ if ok then
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
+                if args == '' then
+                    args = nil
+                end
                 open_terminal(context.root.path, args)
             end,
             ["ip"] = function(vfiler, context, view)
