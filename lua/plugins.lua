@@ -97,11 +97,33 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 local ok, mason = pcall(require, "mason")
 if ok then
-    mason.setup()
+    mason.setup {
+        registries = {
+            "lua:my-mason-registry.index",
+            "github:mason-org/mason-registry",
+        }
+    }
 end
 local ok, mason_lspconfig = pcall(require, "mason-lspconfig")
 if ok then
     local lspconfig = require("lspconfig")
+    local lspconfig_configs = require("lspconfig.configs")
+    if not lspconfig_configs.bashls_mod then
+        lspconfig_configs.bashls_mod = {
+            default_config = {
+                cmd = {"bash-language-server-mod", "start"},
+                filetypes = {"bash"},
+                single_file_support = true,
+                root_dir = function(fname)
+                    return lspconfig.util.find_git_ancestor(fname)
+                end,
+                capabilities = require("cmp_nvim_lsp").default_capabilities(),
+            },
+        }
+    end
+    local server_mappings = require("mason-lspconfig.mappings.server")
+    server_mappings.lspconfig_to_package["bashls_mod"] = "bash-language-server-mod"
+    server_mappings.package_to_lspconfig["bash-language-server-mod"] = "bashls_mod"
     mason_lspconfig.setup_handlers({
         function(server)
             lspconfig[server].setup {
@@ -222,18 +244,6 @@ if ok then
         -- local lines = vim.opt.lines:get()
         scallop.start_terminal_edit(args, dirpath)
     end
-    vim.api.nvim_create_autocmd('FileType', {
-        pattern = 'bash',
-        callback = function()
-            -- vim.lsp.set_log_level(0)
-            vim.lsp.start({
-                name = 'bashls',
-                capabilities = require("cmp_nvim_lsp").default_capabilities(),
-                cmd = {'bash-language-server', 'start'},
-                -- settings = { logLevel = 'debug' },
-            })
-        end,
-    })
 else
     open_terminal = function(dirpath, args)
         local termname = "term://" .. vim.fn.getbufinfo("%")[1].name
