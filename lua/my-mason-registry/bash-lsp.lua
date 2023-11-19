@@ -9,7 +9,7 @@ return Pkg.new {
   categories = { "LSP" },
   languages = { "bash" },
   source = {
-    id = "pkg:npm/@amedama41/bash-language-server-mod@5.0.0-beta.0",
+    id = "pkg:npm/@amedama41/bash-language-server-mod@5.0.0-beta.1",
   },
   schemas = {
     lsp = "vscode:https://raw.githubusercontent.com/bash-lsp/bash-language-server/server-5.0.0/vscode-client/package.json",
