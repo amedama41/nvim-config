@@ -154,6 +154,7 @@ if ok then
                         documentFormatting = true,
                         documentRangeFormatting = true,
                     },
+                    filetypes = { "python" },
                     settings = {
                         rootMarkers = {
                             ".git/",
@@ -286,7 +287,7 @@ else
         vim.cmd [[startinsert]]
     end
 end
-vim.keymap.set('n', '<C-\\><C-t>', function()
+vim.keymap.set('n', '<C-k>', function()
     open_terminal()
 end, { noremap = true, silent = true })
 
@@ -499,10 +500,7 @@ if ok then
             buffers = {
                 mappings = {
                     n = {
-                        ["<C-x>"] = actions.delete_buffer,
-                    },
-                    i = {
-                        ["<C-x>"] = actions.delete_buffer,
+                        ["D"] = actions.delete_buffer,
                     },
                 },
             },
@@ -513,6 +511,9 @@ if ok then
         builtin.buffers { only_cwd = true, sort_mru = true }
     end, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
+    vim.keymap.set("n", "<C-\\>F", function()
+        builtin.find_files { hidden = true, no_ignore = true, no_ignore_parent = true }
+    end, keymap_opts)
     vim.keymap.set("n", "<C-\\>g", builtin.live_grep, keymap_opts)
     vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
     vim.keymap.set("n", "<C-\\>l", builtin.loclist, keymap_opts)

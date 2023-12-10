@@ -102,8 +102,8 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     group = vimrc_settings_group,
     pattern = "*",
     callback = function()
-        if vim.opt.fileencoding:get() == "iso-2022-jp" 
-            and vim.fn.search("[^\x01-\x7ee]", "n") == 0 then
+        if vim.opt.fileencoding:get() == "iso-2022-jp"
+            and vim.fn.search("[^\x01-\x7e]", "n") == 0 then
             vim.opt.fileencoding = vim.opt.encoding:get()
         end
     end
