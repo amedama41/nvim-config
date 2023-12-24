@@ -508,7 +508,7 @@ if ok then
     })
     local builtin = require("telescope.builtin")
     vim.keymap.set("n", "<C-\\>b", function()
-        builtin.buffers { only_cwd = true, sort_mru = true }
+        builtin.buffers { only_cwd = true, sort_lastused = true, sort_mru = true }
     end, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>F", function()
@@ -518,6 +518,9 @@ if ok then
     vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
     vim.keymap.set("n", "<C-\\>l", builtin.loclist, keymap_opts)
     vim.keymap.set("n", "<C-\\>m", builtin.marks, keymap_opts)
+    vim.keymap.set("n", "<C-\\>o", function()
+        builtin.oldfiles { only_cwd = true }
+    end, keymap_opts)
     vim.keymap.set("n", "<C-\\>q", builtin.quickfix, keymap_opts)
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
