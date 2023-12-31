@@ -57,8 +57,8 @@ vim.cmd [[
 ]]
 
 -- LSP関連の設定
-vim.api.nvim_create_autocmd('LspAttach', {
-    group = vim.api.nvim_create_augroup('lsp-settings', { clear = true }),
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("lsp-settings", { clear = true }),
     callback = function(ev)
         local opts = { buffer = ev.buf }
         local ok, builtin = pcall(require, "telescope.builtin")
@@ -178,8 +178,8 @@ end
 
 local ok, cmp = pcall(require, "cmp")
 if ok then
-    local feedkeys = require('cmp.utils.feedkeys')
-    local keymap = require('cmp.utils.keymap')
+    local feedkeys = require("cmp.utils.feedkeys")
+    local keymap = require("cmp.utils.keymap")
     cmp.setup({
         -- REQUIRED - you must specify a snippet engine
         snippet = {
@@ -238,9 +238,67 @@ if ok then
             prompt_pattern = "Macbook\\$\\s",
             history_filepath = "~/.bash_history",
             floating_border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" },
+            edit_filetype = "bash.scallopedit",
         },
     })
+
+    vim.api.nvim_create_user_command("GitEdit", function(info)
+        if #info.fargs == 0 then
+            local file = vim.fn.expand("%:p")
+            if file ~= "" and vim.env.NVIM ~= "" then
+                local channel = vim.fn.sockconnect("pipe", vim.env.NVIM, {
+                    rpc = true,
+                })
+                vim.rpcrequest(channel, 'nvim_cmd', {
+                    cmd = "GitEdit",
+                    args = {
+                        file,
+                        vim.v.servername,
+                    },
+                }, {})
+                vim.fn.chanclose(channel)
+            else
+                vim.cmd [[quit]]
+            end
+        elseif #info.fargs == 2 then
+            local bufnr = vim.fn.bufadd(info.fargs[1])
+            local winid = vim.api.nvim_open_win(bufnr, true, {
+                relative = 'editor',
+                row = 20,
+                col = 1,
+                width = vim.o.columns - 6,
+                height = vim.o.lines - 26,
+                border = "rounded",
+            })
+            vim.fn.win_execute(winid, 'stopinsert', 'silent')
+
+            vim.bo[bufnr].bufhidden = "delete"
+            vim.bo[bufnr].buflisted = true
+            vim.api.nvim_create_autocmd("BufDelete", {
+                group = vim.api.nvim_create_augroup("vimrc-gitedit-settings", { clear = true }),
+                buffer = bufnr,
+                callback = function()
+                    local channel = vim.fn.sockconnect("pipe", info.fargs[2], {
+                        rpc = true,
+                    })
+                    local ok, _ = pcall(vim.rpcrequest, channel, 'nvim_cmd', {
+                        cmd = "quit",
+                        args = {},
+                    }, {})
+                    if ok then
+                        vim.fn.chanclose(channel)
+                    end
+                end,
+            })
+        end
+    end, { nargs = '*' })
+
     open_terminal = function(dirpath, args)
+        if vim.fn.executable("cat") then
+            vim.env.GIT_PAGER = "cat"
+        end
+        vim.env.GIT_EDITOR = "nvim -c GitEdit "
+
         -- local columns = vim.opt.columns:get()
         -- local lines = vim.opt.lines:get()
         scallop.start_terminal_edit(args, dirpath)
@@ -287,7 +345,7 @@ else
         vim.cmd [[startinsert]]
     end
 end
-vim.keymap.set('n', '<C-k>', function()
+vim.keymap.set("n", "<C-k>", function()
     open_terminal()
 end, { noremap = true, silent = true })
 
@@ -299,12 +357,13 @@ if ok then
     vfiler_config.unmap("b")
     vfiler_config.unmap("B")
     vfiler_config.unmap("D")
+    vfiler_config.unmap("N")
     vfiler_config.unmap("v")
     vfiler_config.setup({
         options = {
             auto_cd = true,
             auto_resize = true,
-            columns = 'indent,icon,name,size,time',
+            columns = "indent,icon,name,size,time",
             keep = true,
             name = "vfiler",
             sort = "extension",
@@ -319,18 +378,19 @@ if ok then
             ["gB"] = vfiler_action.add_bookmark,
             ["gj"] = vfiler_action.move_cursor_down_sibling,
             ["gk"] = vfiler_action.move_cursor_up_sibling,
+            ["gn"] = vfiler_action.new_file,
             ["gp"] = vfiler_action.toggle_auto_preview,
             ["g/"] = vfiler_action.jump_to_root,
             ["H"] = function(vfiler, context, view)
                 local selected_items = view:selected_items()
-                local args = ''
+                local args = ""
                 for _, item in pairs(selected_items) do
                     if item.selected then
-                        args = args .. ' ' .. vim.fn.shellescape(item.path)
+                        args = args .. " " .. vim.fn.shellescape(item.path)
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
-                if args == '' then
+                if args == "" then
                     args = nil
                 end
                 open_terminal(context.root.path, args)
@@ -372,6 +432,30 @@ if ok then
                     vfiler_action.open_by_tabpage(vfiler, context, view)
                 end
             end,
+            ["X"] = function(vfiler, context, view)
+                if vim.fn.executable("unar") then
+                    local selected_items = view:selected_items()
+                    local jobids = {}
+                    for _, item in pairs(selected_items) do
+                        local jobid = vim.fn.jobstart({"unar", item.path}, {
+                            clear_env = true,
+                            cwd = vim.fn.fnamemodify(item.path, ":h"),
+                            detach = false,
+                            pty = false,
+                            stdin = nil,
+                        })
+                        table.insert(jobids, jobid)
+                    end
+                    local exitcodes = vim.fn.jobwait(jobids, 5000)
+                    for i, exitcode in pairs(exitcodes) do
+                        if exitcode == -1 then
+                            vim.fn.jobstop(jobids[i])
+                        end
+                    end
+                end
+                vfiler_action.clear_selected_all(vfiler, context, view)
+                vfiler_action.reload(vfiler, context, view)
+            end,
             ["<C-d>"] = function(vfiler, context, view)
                 if context.in_preview.preview then
                     vfiler_action.scroll_down_preview(vfiler, context, view)
@@ -381,8 +465,9 @@ if ok then
             end,
             ["<C-g>"] = function(vfiler, context, view)
                 local item = view:get_item()
-                print(item.name)
+                print(item.path)
             end,
+            ["<C-h>"] = vfiler_action.change_to_parent,
             ["<C-j>"] = vfiler_action.jump_to_history_directory,
             ["<C-o>"] = function(vfiler, context, view)
                 local history = context:directory_history()
@@ -415,7 +500,7 @@ if ok then
             end,
         },
     })
-    local menu_action = require('vfiler/extensions/menu/action')
+    local menu_action = require("vfiler/extensions/menu/action")
     require("vfiler/extensions/menu/config").setup({
         options = {
             floating = {
@@ -427,7 +512,7 @@ if ok then
             ["<C-n>"] = menu_action.loop_cursor_down,
         },
     })
-    local bookmark_action = require('vfiler/extensions/bookmark/action')
+    local bookmark_action = require("vfiler/extensions/bookmark/action")
     require("vfiler/extensions/bookmark/config").setup({
         options = {
             floating = {
@@ -455,7 +540,7 @@ if ok then
                 if first > last then
                     first, last = last, first
                 end
-                local view = require('vfiler/vfiler').get(vim.fn.bufnr("%"))._view
+                local view = require("vfiler/vfiler").get(vim.fn.bufnr("%"))._view
                 first = math.max(first, view:top_lnum())
                 for i = first, last do
                     local item = view:get_item(i)

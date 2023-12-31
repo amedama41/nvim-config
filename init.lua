@@ -113,7 +113,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     callback = function()
         if vim.opt.buftype:get() == "terminal" then
-            vim.opt_local.scrollback = 50000
+            vim.opt_local.scrollback = 100000
         end
     end
 })
@@ -147,4 +147,3 @@ end
 vim.cmd "colorscheme mine"
 
 require "plugins"
-
