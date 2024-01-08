@@ -15,6 +15,15 @@ end
 
 local packer_bootstrap = ensure_packer()
 
+local function setup_deol()
+    vim.cmd [[
+        let g:deol#prompt_pattern = "Macbook\\$\\s"
+        let g:deol#floating_border = "rounded"
+        let g:deol#external_history_path = "~/.bash_history"
+        let g:deol#shell_history_max = 10000
+    ]]
+end
+
 require("packer").startup(function(use)
     use "wbthomason/packer.nvim"
 
@@ -24,18 +33,20 @@ require("packer").startup(function(use)
     use "williamboman/mason-lspconfig.nvim"
     use "hrsh7th/nvim-cmp"
     use "hrsh7th/cmp-nvim-lsp"
+    use "hrsh7th/cmp-path"
     use "hrsh7th/vim-vsnip"
     use { "creativenull/efmls-configs-nvim", tag = "v1.*", requires = "neovim/nvim-lspconfig" }
 
     -- Tree-sitter --
     use "nvim-treesitter/nvim-treesitter"
+    -- use "nvim-treesitter/playground"
 
     -- ファイラー
     use "obaland/vfiler.vim"
     -- Fuzzy finder
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
     -- Terminal
-    use "Shougo/deol.nvim"
+    use { "Shougo/deol.nvim", config = setup_deol, disable = true }
     use "amedama41/scallop.nvim"
     -- Git diff
     use "sindrets/diffview.nvim"
@@ -48,13 +59,6 @@ require("packer").startup(function(use)
         require("packer").sync()
     end
 end)
-
-vim.cmd [[
-    let g:deol#prompt_pattern = "Macbook\\$\\s"
-    let g:deol#floating_border = "rounded"
-    let g:deol#external_history_path = "~/.bash_history"
-    let g:deol#shell_history_max = 10000
-]]
 
 -- LSP関連の設定
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -73,8 +77,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.keymap.set("n", "glD", function()
                 builtin.diagnostics { root_dir = true }
             end, opts)
+
+            local filetype = vim.bo[ev.buf].filetype
+            local symbols = nil
+            if filetype ~= "markdown" then
+                symbols = { "class", "function", "method", }
+            end
             vim.keymap.set("n", "gls", function()
-                builtin.lsp_document_symbols { symbols = { "class", "function", "method" } }
+                builtin.lsp_document_symbols { symbols = symbols }
             end, opts)
         else
             vim.keymap.set("n", "glr", vim.lsp.buf.references, opts)
@@ -112,7 +122,7 @@ if ok then
         lspconfig_configs.bashls_mod = {
             default_config = {
                 cmd = {"bash-language-server-mod", "start"},
-                filetypes = {"bash"},
+                filetypes = {"bash", "bash.*"},
                 single_file_support = true,
                 root_dir = function(fname)
                     return lspconfig.util.find_git_ancestor(fname)
@@ -214,11 +224,34 @@ if ok then
         sources = cmp.config.sources({
             { name = "nvim_lsp" },
             -- { name = "buffer" },
-            -- { name = "path" },
         },
         {
-            { name = "buffer" }
+            { name = "buffer" },
         })
+    })
+    cmp.setup.filetype({ "bash.scallopedit" }, {
+        sources = {
+            { name = "nvim_lsp" },
+            {
+                name = "path",
+                option = {
+                    get_cwd = function()
+                        return vim.fn.getcwd()
+                    end
+                },
+            },
+        },
+        {
+            { name = "buffer" },
+            {
+                name = "path",
+                option = {
+                    get_cwd = function()
+                        return vim.fn.getcwd()
+                    end
+                },
+            },
+        }
     })
 end
 
@@ -592,6 +625,7 @@ if ok then
         },
     })
     local builtin = require("telescope.builtin")
+    local keymap_opts = { noremap = true, silent = true }
     vim.keymap.set("n", "<C-\\>b", function()
         builtin.buffers { only_cwd = true, sort_lastused = true, sort_mru = true }
     end, keymap_opts)
@@ -610,6 +644,8 @@ if ok then
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
     vim.keymap.set("n", "<C-\\>t", builtin.tagstack, keymap_opts)
-    vim.keymap.set("n", "<C-\\>*", builtin.grep_string, keymap_opts)
+    vim.keymap.set("n", "<C-\\>*", function()
+        builtin.grep_string { word_match = "-w" }
+    end, keymap_opts)
     vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
 end

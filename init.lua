@@ -143,6 +143,72 @@ if vim.fn.executable("im-select") then
         end
     })
 end
+if vim.fn.executable("gh") then
+    vim.api.nvim_create_user_command("GhBrowse", function(args)
+        local file = vim.fn.shellescape(vim.fn.bufname("%"))
+        if args.line1 ~= args.line2 then
+            file = file .. (":%d-%d"):format(args.line1, args.line2)
+        end
+        local command = ("gh browse -c %s"):format(file)
+        vim.fn.system(command)
+    end, { range = true, force = true })
+end
+
+vim.api.nvim_create_user_command("GitEdit", function(info)
+    if #info.fargs == 0 then
+        local file = vim.fn.expand("%:p")
+        if file == "" and vim.env.NVIM == "" then
+            return
+        end
+        local channel = vim.fn.sockconnect("pipe", vim.env.NVIM, {
+            rpc = true,
+        })
+        if channel <= 0 then
+            return
+        end
+        vim.rpcrequest(channel, 'nvim_cmd', {
+            cmd = "GitEdit",
+            args = { file, vim.v.servername },
+        }, {})
+        vim.fn.chanclose(channel)
+    elseif #info.fargs == 2 then
+        local bufnr = vim.fn.bufadd(info.fargs[1])
+        local winid = vim.api.nvim_open_win(bufnr, true, {
+            relative = 'editor',
+            row = 20,
+            col = 1,
+            width = vim.o.columns - 6,
+            height = vim.o.lines - 26,
+            border = "rounded",
+        })
+        vim.fn.win_execute(winid, 'stopinsert', 'silent')
+
+        vim.bo[bufnr].bufhidden = "delete"
+        vim.bo[bufnr].buflisted = true
+        vim.api.nvim_create_autocmd("BufDelete", {
+            group = vim.api.nvim_create_augroup("vimrc-gitedit-settings", { clear = true }),
+            buffer = bufnr,
+            callback = function()
+                local channel = vim.fn.sockconnect("pipe", info.fargs[2], {
+                    rpc = true,
+                })
+                if channel > 0 then
+                    vim.rpcrequest(channel, 'nvim_cmd', {
+                        cmd = "quit",
+                        args = {},
+                    }, {})
+                    vim.fn.chanclose(channel)
+                end
+            end,
+            once = true,
+        })
+    end
+end, { nargs = '*', force = true })
+
+if vim.fn.executable("cat") then
+    vim.env.GIT_PAGER = "cat"
+end
+vim.env.GIT_EDITOR = "nvim -c GitEdit "
 
 vim.cmd "colorscheme mine"
 
