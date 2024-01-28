@@ -116,6 +116,8 @@ if ok then
 end
 local ok, mason_lspconfig = pcall(require, "mason-lspconfig")
 if ok then
+    -- vim.lsp.set_log_level("debug")
+    vim.lsp.set_log_level("off")
     local lspconfig = require("lspconfig")
     local lspconfig_configs = require("lspconfig.configs")
     if not lspconfig_configs.bashls_mod then
@@ -275,63 +277,16 @@ if ok then
         },
     })
 
-    vim.api.nvim_create_user_command("GitEdit", function(info)
-        if #info.fargs == 0 then
-            local file = vim.fn.expand("%:p")
-            if file ~= "" and vim.env.NVIM ~= "" then
-                local channel = vim.fn.sockconnect("pipe", vim.env.NVIM, {
-                    rpc = true,
-                })
-                vim.rpcrequest(channel, 'nvim_cmd', {
-                    cmd = "GitEdit",
-                    args = {
-                        file,
-                        vim.v.servername,
-                    },
-                }, {})
-                vim.fn.chanclose(channel)
-            else
-                vim.cmd [[quit]]
-            end
-        elseif #info.fargs == 2 then
-            local bufnr = vim.fn.bufadd(info.fargs[1])
-            local winid = vim.api.nvim_open_win(bufnr, true, {
-                relative = 'editor',
-                row = 20,
-                col = 1,
-                width = vim.o.columns - 6,
-                height = vim.o.lines - 26,
-                border = "rounded",
-            })
-            vim.fn.win_execute(winid, 'stopinsert', 'silent')
-
-            vim.bo[bufnr].bufhidden = "delete"
-            vim.bo[bufnr].buflisted = true
-            vim.api.nvim_create_autocmd("BufDelete", {
-                group = vim.api.nvim_create_augroup("vimrc-gitedit-settings", { clear = true }),
-                buffer = bufnr,
-                callback = function()
-                    local channel = vim.fn.sockconnect("pipe", info.fargs[2], {
-                        rpc = true,
-                    })
-                    local ok, _ = pcall(vim.rpcrequest, channel, 'nvim_cmd', {
-                        cmd = "quit",
-                        args = {},
-                    }, {})
-                    if ok then
-                        vim.fn.chanclose(channel)
-                    end
-                end,
-            })
-        end
-    end, { nargs = '*' })
+    local group = vim.api.nvim_create_augroup("scallop-settings", { clear = true })
+    vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = "*.scallopedit",
+        callback = function()
+            vim.wo.wrap = false
+        end,
+    })
 
     open_terminal = function(dirpath, args)
-        if vim.fn.executable("cat") then
-            vim.env.GIT_PAGER = "cat"
-        end
-        vim.env.GIT_EDITOR = "nvim -c GitEdit "
-
         -- local columns = vim.opt.columns:get()
         -- local lines = vim.opt.lines:get()
         scallop.start_terminal_edit(args, dirpath)
@@ -562,9 +517,9 @@ if ok then
     local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
     .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
     vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
-    vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
+    local group = vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
-        group = "vfiler-settings",
+        group = group,
         pattern = {"vfiler"},
         callback = function()
             vim.keymap.set("x", "<Space>", function()
