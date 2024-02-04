@@ -193,7 +193,7 @@ vim.api.nvim_create_user_command("GitEdit", function(info)
                     rpc = true,
                 })
                 if channel > 0 then
-                    vim.rpcrequest(channel, 'nvim_cmd', {
+                    pcall(vim.rpcrequest, channel, 'nvim_cmd', {
                         cmd = "quit",
                         args = {},
                     }, {})

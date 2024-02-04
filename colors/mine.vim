@@ -75,11 +75,12 @@ let colors_name = "mine"
 :hi link @function.builtin Function
 :hi link @string.documentation Comment
 :hi link @constant.builtin @constant
-:hi @text.emphasis cterm=italic ctermfg=lightgreen
-:hi @text.strong cterm=bold ctermfg=red
-:hi @text.strike ctermfg=gray
-:hi @text.reference cterm=underline ctermfg=magenta
-:hi @text.escape ctermfg=gray
-:hi @text.literal ctermfg=lightcyan
-:hi @text.quote ctermfg=gray
-:hi @text.title.1 guifg=gold gui=bold cterm=bold,underline ctermfg=yellow
+:hi @markup.emphasis cterm=italic ctermfg=lightgreen
+:hi @markup.strong cterm=bold ctermfg=red
+:hi @markup.strike ctermfg=gray
+:hi @markup.link cterm=underline ctermfg=magenta
+:hi @markup.escape ctermfg=gray
+:hi @markup.raw ctermfg=lightcyan
+:hi @markup.quote ctermfg=gray
+:hi link @markup.heading @text.title
+:hi @markup.heading.1 guifg=gold gui=bold cterm=bold,underline ctermfg=yellow
