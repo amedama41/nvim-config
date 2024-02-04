@@ -291,6 +291,9 @@ if ok then
         -- local lines = vim.opt.lines:get()
         scallop.start_terminal_edit(args, dirpath)
     end
+    vim.keymap.set("n", "g<C-k>", function()
+        scallop.start_terminal()
+    end, { noremap = true, silent = true })
 else
     open_terminal = function(dirpath, args)
         local termname = "term://" .. vim.fn.getbufinfo("%")[1].name

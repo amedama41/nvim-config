@@ -67,7 +67,7 @@ let colors_name = "mine"
 :hi DiagnosticInfo ctermfg=147 " lightsteelblud
 :hi DiagnosticHint ctermfg=251 " grey78
 :hi DiagnosticOK ctermfg=112 " chartreuse2
-:hi @parameter cterm=italic
+:hi @variable.parameter cterm=italic
 :hi @variable.builtin ctermfg=yellow " khaki1
 :hi @keyword.operator ctermfg=lightgreen cterm=none
 :hi @constant guifg=#ffa0a0 cterm=bold ctermfg=225 " thistle1
