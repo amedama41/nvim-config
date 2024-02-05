@@ -146,8 +146,12 @@ end
 if vim.fn.executable("gh") then
     vim.api.nvim_create_user_command("GhBrowse", function(args)
         local file = vim.fn.shellescape(vim.fn.bufname("%"))
-        if args.line1 ~= args.line2 then
-            file = file .. (":%d-%d"):format(args.line1, args.line2)
+        if args.range == 2 then
+            if args.line1 ~= args.line2 then
+                file = file .. (":%d-%d"):format(args.line1, args.line2)
+            else
+                file = file .. (":%d"):format(args.line1)
+            end
         end
         local command = ("gh browse -c %s"):format(file)
         vim.fn.system(command)
