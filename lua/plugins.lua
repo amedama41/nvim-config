@@ -45,6 +45,31 @@ require("packer").startup(function(use)
     use "obaland/vfiler.vim"
     -- Fuzzy finder
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
+    use { "LukasPietzschmann/telescope-tabs",
+        requires = "nvim-telescope/telescope.nvim",
+        config = function ()
+            require("telescope").load_extension "telescope-tabs"
+            local telescope_tabs = require("telescope-tabs")
+            telescope_tabs.setup({
+                entry_formatter = function(tab_id, bufids, names, paths, is_current)
+                    local tabnr = vim.api.nvim_tabpage_get_number(tab_id)
+                    return ("%s %d: %s"):format(is_current and "%" or " ", tabnr, vim.fn.getcwd(1, tabnr))
+                end,
+                entry_ordinal = function(tab_id, bufids, names, paths, is_current)
+                    local tabnr = vim.api.nvim_tabpage_get_number(tab_id)
+                    return ("%d: %s"):format(tabnr, vim.fn.getcwd(1, tabnr))
+                end,
+                close_tab_shortcut_i = '<C-g><C-d>',
+                close_tab_shortcut_n = '<C-g><C-d>',
+            })
+            vim.keymap.set("n", "<C-\\><C-t>", function()
+                telescope_tabs.list_tabs()
+            end, { noremap = true, silent = true })
+            vim.keymap.set("n", "<C-\\><C-^>", function()
+                telescope_tabs.go_to_previous()
+            end, { noremap = true, silent = true })
+        end,
+    }
     -- Terminal
     use { "Shougo/deol.nvim", config = setup_deol, disable = true }
     use "amedama41/scallop.nvim"
@@ -274,6 +299,12 @@ if ok then
             history_filepath = "~/.bash_history",
             floating_border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" },
             edit_filetype = "bash.scallopedit",
+            edit_win_options = {
+                wrap = false,
+                number = true,
+                conceallevel = 2,
+                concealcursor = 'nvic',
+            },
         },
     })
 
