@@ -215,5 +215,6 @@ end
 vim.env.GIT_EDITOR = "nvim -c GitEdit "
 
 vim.cmd "colorscheme mine"
+vim.opt.termguicolors = true
 
 require "plugins"
