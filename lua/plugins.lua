@@ -47,7 +47,7 @@ require("packer").startup(function(use)
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
     use { "LukasPietzschmann/telescope-tabs",
         requires = "nvim-telescope/telescope.nvim",
-        config = function ()
+        config = function()
             require("telescope").load_extension "telescope-tabs"
             local telescope_tabs = require("telescope-tabs")
             telescope_tabs.setup({
@@ -59,8 +59,8 @@ require("packer").startup(function(use)
                     local tabnr = vim.api.nvim_tabpage_get_number(tab_id)
                     return ("%d: %s"):format(tabnr, vim.fn.getcwd(1, tabnr))
                 end,
-                close_tab_shortcut_i = '<C-g><C-d>',
-                close_tab_shortcut_n = '<C-g><C-d>',
+                close_tab_shortcut_i = "<C-g><C-d>",
+                close_tab_shortcut_n = "<C-g><C-d>",
             })
             vim.keymap.set("n", "<C-\\><C-t>", function()
                 telescope_tabs.list_tabs()
@@ -87,7 +87,7 @@ end)
 
 -- LSP関連の設定
 vim.api.nvim_create_autocmd("LspAttach", {
-    group = vim.api.nvim_create_augroup("lsp-settings", { clear = true }),
+    group = vim.api.nvim_create_augroup("vimrc-lsp-settings", { clear = true }),
     callback = function(ev)
         local opts = { buffer = ev.buf }
         local ok, builtin = pcall(require, "telescope.builtin")
@@ -118,7 +118,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.keymap.set("n", "gli", vim.lsp.buf.implementation, opts)
             vim.keymap.set("n", "glt", vim.lsp.buf.type_definition, opts)
         end
-        vim.keymap.set("n", "K",  vim.lsp.buf.hover, opts)
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
         vim.keymap.set("n", "glf", function()
             vim.lsp.buf.format { timeout_ms = 10000 }
         end, opts)
@@ -148,8 +148,8 @@ if ok then
     if not lspconfig_configs.bashls_mod then
         lspconfig_configs.bashls_mod = {
             default_config = {
-                cmd = {"bash-language-server-mod", "start"},
-                filetypes = {"bash", "bash.*"},
+                cmd = { "bash-language-server-mod", "start" },
+                filetypes = { "bash", "bash.*" },
                 single_file_support = true,
                 root_dir = function(fname)
                     return lspconfig.util.find_git_ancestor(fname)
@@ -238,7 +238,7 @@ if ok then
             ["<CR>"] = function(fallback)
                 -- https://github.com/hrsh7th/nvim-cmp/issues/1326
                 if vim.fn.pumvisible() == 1 then
-                    if vim.fn.complete_info({"selected"}).selected == -1 then
+                    if vim.fn.complete_info({ "selected" }).selected == -1 then
                         feedkeys.call(keymap.t("<CR>"), "in")
                     else
                         feedkeys.call(keymap.t("<C-X><C-Z>"), "in")
@@ -249,12 +249,12 @@ if ok then
             end,
         },
         sources = cmp.config.sources({
-            { name = "nvim_lsp" },
-            -- { name = "buffer" },
-        },
-        {
-            { name = "buffer" },
-        })
+                { name = "nvim_lsp" },
+                -- { name = "buffer" },
+            },
+            {
+                { name = "buffer" },
+            })
     })
     cmp.setup.filetype({ "bash.scallopedit" }, {
         sources = {
@@ -297,18 +297,19 @@ if ok then
         options = {
             prompt_pattern = "Macbook\\$\\s",
             history_filepath = "~/.bash_history",
-            floating_border = { "╔", "═" ,"╗", "║", "╝", "═", "╚", "║" },
+            floating_border = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" },
             edit_filetype = "bash.scallopedit",
             edit_win_options = {
                 wrap = false,
                 number = true,
                 conceallevel = 2,
-                concealcursor = 'nvic',
+                concealcursor = "nvic",
+                foldmethod = "marker",
             },
         },
     })
 
-    local group = vim.api.nvim_create_augroup("scallop-settings", { clear = true })
+    local group = vim.api.nvim_create_augroup("vimrc-scallop-settings", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
         group = group,
         pattern = "*.scallopedit",
@@ -335,7 +336,7 @@ else
                 botright new
                 resize 15
             ]]
-            job_id = vim.fn.termopen({vim.opt.shell:get()}, { cwd = dirpath })
+            job_id = vim.fn.termopen({ vim.opt.shell:get() }, { cwd = dirpath })
             vim.cmd("keepalt file " .. termname)
         else
             local termbufinfo = termbufs[1]
@@ -386,8 +387,9 @@ if ok then
             auto_cd = true,
             auto_resize = true,
             columns = "indent,icon,name,size,time",
-            keep = true,
+            keep = false,
             name = "vfiler",
+            session = 'share',
             sort = "extension",
             git = {
                 enabled = true,
@@ -458,25 +460,39 @@ if ok then
                 if vim.fn.executable("unar") then
                     local selected_items = view:selected_items()
                     local jobids = {}
+                    local run_items = {}
                     for _, item in pairs(selected_items) do
-                        local jobid = vim.fn.jobstart({"unar", item.path}, {
+                        local jobid = vim.fn.jobstart({ "unar", item.path }, {
                             clear_env = true,
                             cwd = vim.fn.fnamemodify(item.path, ":h"),
-                            detach = false,
+                            detach = true,
                             pty = false,
                             stdin = nil,
                         })
-                        table.insert(jobids, jobid)
+                        if jobid > 0 then
+                            table.insert(jobids, jobid)
+                            table.insert(run_items, item.path)
+                        else
+                            vim.print(([[failed to run unar for "%s"]]):format(item.path))
+                        end
                     end
-                    local exitcodes = vim.fn.jobwait(jobids, 5000)
+                    local exitcodes = vim.fn.jobwait(jobids, 500)
                     for i, exitcode in pairs(exitcodes) do
-                        if exitcode == -1 then
-                            vim.fn.jobstop(jobids[i])
+                        if exitcode > 0 then
+                            vim.print(([[failed to unar for "%s" (%d)]]):format(run_items[i], exitcode))
                         end
                     end
                 end
                 vfiler_action.clear_selected_all(vfiler, context, view)
                 vfiler_action.reload(vfiler, context, view)
+            end,
+            ["yp"] = function(vfiler, context, view)
+                local item = view:get_item()
+                if item.parent then
+                    local register = (vim.v.register == [["]] and "+") or vim.v.register
+                    vim.fn.setreg(register or "+", item.parent.path, "")
+                    print(([[Yanked path - "%s"]]):format(item.parent.path))
+                end
             end,
             ["<C-d>"] = function(vfiler, context, view)
                 if context.in_preview.preview then
@@ -548,13 +564,23 @@ if ok then
         },
     })
     local keymap_opts = { noremap = true, silent = true }
-    local cmd = "VFiler -auto-cd -auto-resize -keep -no-listed"
-    .. " -layout=left -name=explorer -width=30 -columns=indent,icon,name,git<CR>"
-    vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd, keymap_opts)
-    local group = vim.api.nvim_create_augroup("vfiler-settings", { clear = true })
+    local cmd = table.concat({
+        "VFiler",
+        "-auto-cd",
+        "-auto-resize",
+        "-find-file",
+        "-keep",
+        "-no-listed",
+        "-layout=left",
+        "-name=explorer",
+        "-width=30",
+        "-columns=indent,icon,name,git",
+    }, " ")
+    vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd .. "<CR>", keymap_opts)
+    local group = vim.api.nvim_create_augroup("vimrc-vfiler-settings", { clear = true })
     vim.api.nvim_create_autocmd("FileType", {
         group = group,
-        pattern = {"vfiler"},
+        pattern = { "vfiler" },
         callback = function()
             vim.keymap.set("x", "<Space>", function()
                 local first = vim.fn.line("v")
@@ -585,7 +611,7 @@ if ok then
         defaults = {
             sorting_strategy = "ascending",
             layout_strategy = "vertical",
-            path_display = { "shorten" },
+            path_display = { shorten = 2 },
             dynamic_preview_title = true,
             file_ignore_patterns = {
                 "^.git/",
@@ -594,30 +620,84 @@ if ok then
             },
             mappings = {
                 n = {
-                    ["<C-l>"] = actions.smart_send_to_loclist,
-                    ["<C-q>"] = actions.smart_send_to_qflist,
+                    ["j"] = actions.move_selection_next,
+                    ["<C-n>"] = actions.move_selection_next,
+                    ["k"] = actions.move_selection_previous,
+                    ["<C-p>"] = actions.move_selection_previous,
+                    ["<Tab>"] = actions.toggle_selection + actions.move_selection_next,
+                    ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_previous,
+                    ["H"] = actions.move_to_top,
+                    ["M"] = actions.move_to_middle,
+                    ["L"] = actions.move_to_bottom,
+                    ["U"] = actions.drop_all,
+                    ["*"] = actions.toggle_all,
+                    ["<C-b>"] = actions.preview_scrolling_up,
+                    ["<C-f>"] = actions.preview_scrolling_down,
+                    ["<M-h>"] = actions.preview_scrolling_left,
+                    ["<M-l>"] = actions.preview_scrolling_right,
+                    ["<C-k>"] = actions.results_scrolling_left,
+                    ["<C-j>"] = actions.results_scrolling_right,
+                    ["q"] = actions.close,
+                    ["<ESC>"] = actions.close,
+                    ["?"] = actions.which_key,
+                    ["<C-g><C-l>"] = actions.smart_send_to_loclist,
+                    ["<C-g><C-q>"] = actions.smart_send_to_qflist,
+                    ["<C-u>"] = false,
+                    ["<C-d>"] = false,
                 },
                 i = {
-                    ["<C-l>"] = actions.smart_send_to_loclist,
-                    ["<C-q>"] = actions.smart_send_to_qflist,
+                    ["<C-n>"] = actions.move_selection_next,
+                    ["<C-p>"] = actions.move_selection_previous,
+                    ["<Tab>"] = actions.toggle_selection + actions.move_selection_next,
+                    ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_previous,
+                    ["<C-g>H"] = actions.move_to_top,
+                    ["<C-g>M"] = actions.move_to_middle,
+                    ["<C-g>L"] = actions.move_to_bottom,
+                    ["<C-g>U"] = actions.drop_all,
+                    ["<C-g>*"] = actions.toggle_all,
+                    ["<C-b>"] = actions.preview_scrolling_up,
+                    ["<C-f>"] = actions.preview_scrolling_down,
+                    ["<M-h>"] = actions.preview_scrolling_left,
+                    ["<M-l>"] = actions.preview_scrolling_right,
+                    ["<C-k>"] = actions.results_scrolling_left,
+                    ["<C-j>"] = actions.results_scrolling_right,
+                    ["<C-g><C-l>"] = actions.smart_send_to_loclist,
+                    ["<C-g><C-q>"] = actions.smart_send_to_qflist,
+                    ["<C-x><C-n>"] = actions.cycle_history_next,
+                    ["<C-x><C-p>"] = actions.cycle_history_prev,
+                    ["<C-u>"] = false,
+                    ["<C-d>"] = false,
                 },
             },
         },
         pickers = {
+            grep_string = { word_match = "-s" },
+            git_commits = {
+                git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short", "--", "." },
+            },
+            git_bcommits = {
+                git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short" },
+            },
+            git_bcommits_range = {
+                git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short", "--no-patch", "-L" },
+            },
+            oldfiles = { only_cwd = true },
             buffers = {
+                only_cwd = true,
+                sort_lastused = true,
+                sort_mru = true,
                 mappings = {
                     n = {
                         ["D"] = actions.delete_buffer,
                     },
                 },
             },
+            lsp_references = { include_current_line = true },
         },
     })
     local builtin = require("telescope.builtin")
     local keymap_opts = { noremap = true, silent = true }
-    vim.keymap.set("n", "<C-\\>b", function()
-        builtin.buffers { only_cwd = true, sort_lastused = true, sort_mru = true }
-    end, keymap_opts)
+    vim.keymap.set("n", "<C-\\>b", builtin.buffers, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>F", function()
         builtin.find_files { hidden = true, no_ignore = true, no_ignore_parent = true }
@@ -626,15 +706,20 @@ if ok then
     vim.keymap.set("n", "<C-\\>j", builtin.jumplist, keymap_opts)
     vim.keymap.set("n", "<C-\\>l", builtin.loclist, keymap_opts)
     vim.keymap.set("n", "<C-\\>m", builtin.marks, keymap_opts)
-    vim.keymap.set("n", "<C-\\>o", function()
-        builtin.oldfiles { only_cwd = true }
+    vim.keymap.set("n", "<C-\\>M", function()
+        local section = (vim.v.count == 0 and "ALL") or tostring(vim.v.count)
+        builtin.man_pages { sections = { section } }
     end, keymap_opts)
+    vim.keymap.set("n", "<C-\\>o", builtin.oldfiles, keymap_opts)
     vim.keymap.set("n", "<C-\\>q", builtin.quickfix, keymap_opts)
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
     vim.keymap.set("n", "<C-\\>t", builtin.tagstack, keymap_opts)
-    vim.keymap.set("n", "<C-\\>*", function()
-        builtin.grep_string { word_match = "-w" }
-    end, keymap_opts)
+    vim.keymap.set("n", "<C-\\>*", builtin.grep_string, keymap_opts)
     vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
+    vim.keymap.set("n", "<C-\\>C", builtin.git_commits, keymap_opts)
+    vim.keymap.set("n", "<C-\\>B", builtin.git_bcommits, keymap_opts)
+    vim.keymap.set("x", "<C-\\>B", builtin.git_bcommits_range, keymap_opts)
+    vim.keymap.set("n", "<C-\\>GB", builtin.git_branches, keymap_opts)
+    vim.keymap.set("n", "<C-\\>GS", builtin.git_stash, keymap_opts)
 end
