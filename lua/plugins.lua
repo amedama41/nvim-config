@@ -151,8 +151,8 @@ if ok then
                 cmd = { "bash-language-server-mod", "start" },
                 filetypes = { "bash", "bash.*" },
                 single_file_support = true,
-                root_dir = function(fname)
-                    return lspconfig.util.find_git_ancestor(fname)
+                root_dir = function()
+                    return vim.fn.getcwd()
                 end,
                 capabilities = require("cmp_nvim_lsp").default_capabilities(),
             },

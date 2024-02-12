@@ -56,6 +56,8 @@ let colors_name = "mine"
 " :hi DiffDelete cterm=bold ctermfg=4 ctermbg=6
 " :hi DiffText cterm=bold ctermbg=1
 :hi DiffText term=reverse gui=bold guibg=#5f0000 cterm=bold ctermbg=52 " DarkRed
+:hi diffAdded guifg=#5ff967 ctermfg=10
+:hi diffRemoved guifg=#ff6d67 ctermfg=9
 :hi Underlined gui=underline guifg=purple cterm=underline ctermfg=5
 :hi Error guifg=#141313 guibg=#ff6d67 ctermfg=15 ctermbg=9
 " :hi SpellErrors guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
