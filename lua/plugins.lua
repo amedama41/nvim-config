@@ -185,7 +185,22 @@ if ok then
         end,
         ["efm"] = function()
             local efmls_configs_ok, _ = pcall(require, "efmls-configs")
+            local merge_config = function(config1, config2)
+                local config = {}
+                for k, v in pairs(config1) do
+                    config[k] = v
+                end
+                for k, v in pairs(config2) do
+                    config[k] = v
+                end
+                return config
+            end
             if efmls_configs_ok then
+                local py_env = {
+                    "PATH=./test_modules/bin:./.venv/bin:" .. vim.env.PATH,
+                    "PYTHONPATH=./test_modules",
+                }
+
                 lspconfig.efm.setup {
                     init_options = {
                         documentFormatting = true,
@@ -200,10 +215,13 @@ if ok then
                         },
                         languages = {
                             python = {
-                                require("efmls-configs.linters.mypy"),
-                                require("efmls-configs.linters.flake8"),
-                                require("efmls-configs.formatters.black"),
-                                require("efmls-configs.formatters.isort"),
+                                merge_config(require("efmls-configs.linters.mypy"), { env = py_env }),
+                                merge_config(require("efmls-configs.linters.flake8"), {
+                                    env = py_env,
+                                    lintCategoryMap = { E = "W", W = "W", I = "I", N = "N" },
+                                }),
+                                merge_config(require("efmls-configs.formatters.black"), { env = py_env }),
+                                merge_config(require("efmls-configs.formatters.isort"), { env = py_env }),
                             },
                         },
                     },
@@ -507,6 +525,7 @@ if ok then
             end,
             ["<C-h>"] = vfiler_action.change_to_parent,
             ["<C-j>"] = vfiler_action.jump_to_history_directory,
+            ["<C-l>"] = vfiler_action.reload_all_dir,
             ["<C-o>"] = function(vfiler, context, view)
                 local history = context:directory_history()
                 if #history == 0 then
