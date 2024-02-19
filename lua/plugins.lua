@@ -35,6 +35,7 @@ require("packer").startup(function(use)
     use "hrsh7th/cmp-nvim-lsp"
     use "hrsh7th/cmp-path"
     use "hrsh7th/vim-vsnip"
+    use "amarakon/nvim-cmp-buffer-lines"
     use { "creativenull/efmls-configs-nvim", tag = "v1.*", requires = "neovim/nvim-lspconfig" }
 
     -- Tree-sitter --
@@ -285,6 +286,9 @@ if ok then
                     end
                 },
             },
+            {
+                name = "buffer-lines",
+            },
         },
         {
             { name = "buffer" },
@@ -295,6 +299,9 @@ if ok then
                         return vim.fn.getcwd()
                     end
                 },
+            },
+            {
+                name = "buffer-lines",
             },
         }
     })
