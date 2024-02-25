@@ -325,22 +325,13 @@ if ok then
             floating_border = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" },
             edit_filetype = "bash.scallopedit",
             edit_win_options = {
-                wrap = false,
+                wrap = true,
                 number = true,
                 conceallevel = 2,
                 concealcursor = "nvic",
                 foldmethod = "marker",
             },
         },
-    })
-
-    local group = vim.api.nvim_create_augroup("vimrc-scallop-settings", { clear = true })
-    vim.api.nvim_create_autocmd("FileType", {
-        group = group,
-        pattern = "*.scallopedit",
-        callback = function()
-            vim.wo.wrap = false
-        end,
     })
 
     open_terminal = function(dirpath, args)
@@ -596,6 +587,7 @@ if ok then
         "-auto-resize",
         "-find-file",
         "-keep",
+        "-session=buffer",
         "-no-listed",
         "-layout=left",
         "-name=explorer",
@@ -741,7 +733,7 @@ if ok then
     vim.keymap.set("n", "<C-\\>r", builtin.registers, keymap_opts)
     vim.keymap.set("n", "<C-\\>s", builtin.search_history, keymap_opts)
     vim.keymap.set("n", "<C-\\>t", builtin.tagstack, keymap_opts)
-    vim.keymap.set("n", "<C-\\>*", builtin.grep_string, keymap_opts)
+    vim.keymap.set({ "n", "x" }, "<C-\\>*", builtin.grep_string, keymap_opts)
     vim.keymap.set("n", "<C-\\><C-\\>", builtin.resume, keymap_opts)
     vim.keymap.set("n", "<C-\\>C", builtin.git_commits, keymap_opts)
     vim.keymap.set("n", "<C-\\>B", builtin.git_bcommits, keymap_opts)
