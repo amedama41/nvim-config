@@ -548,6 +548,11 @@ if ok then
             end,
         },
     })
+    require('vfiler/action').setup {
+        hook = {
+            read_preview_file = require("read_preview_file"),
+        }
+    }
     local menu_action = require("vfiler/extensions/menu/action")
     require("vfiler/extensions/menu/config").setup({
         options = {
