@@ -315,6 +315,15 @@ if ok then
         options = {
             prompt_pattern = "Macbook\\$\\s",
             history_filepath = "~/.bash_history",
+            history_filter = function(data)
+                if data:find("[:graph:]%s+[:graph:]") == nil then
+                    return false
+                end
+                if data:find("^ghp_") ~= nil then
+                    return false
+                end
+                return true
+            end,
             floating_border = { "╔", "═", "╗", "║", "╝", "═", "╚", "║" },
             edit_filetype = "bash.scallopedit",
             edit_win_options = {
