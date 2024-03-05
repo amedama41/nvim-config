@@ -31,11 +31,15 @@ require("packer").startup(function(use)
     use "neovim/nvim-lspconfig"
     use "williamboman/mason.nvim"
     use "williamboman/mason-lspconfig.nvim"
+    use { "creativenull/efmls-configs-nvim", tag = "v1.*", requires = "neovim/nvim-lspconfig" }
+
+    -- 補完
     use "hrsh7th/nvim-cmp"
     use "hrsh7th/cmp-nvim-lsp"
     use "hrsh7th/cmp-path"
+    use "hrsh7th/cmp-nvim-lua"
     use "hrsh7th/vim-vsnip"
-    use { "creativenull/efmls-configs-nvim", tag = "v1.*", requires = "neovim/nvim-lspconfig" }
+    use "amarakon/nvim-cmp-buffer-lines"
 
     -- Tree-sitter --
     use "nvim-treesitter/nvim-treesitter"
@@ -235,6 +239,18 @@ local ok, cmp = pcall(require, "cmp")
 if ok then
     local feedkeys = require("cmp.utils.feedkeys")
     local keymap = require("cmp.utils.keymap")
+    local compare = require("cmp.config.compare")
+    local pattern = vim.regex([[\S\s\+\S]])
+    local history_filter = function(entry, _)
+        local text = entry:get_insert_text()
+        if pattern:match_str(text) == nil then
+            return false
+        end
+        if text:find("^ghp_") ~= nil then
+            return false
+        end
+        return true
+    end
     cmp.setup({
         -- REQUIRED - you must specify a snippet engine
         snippet = {
@@ -274,9 +290,30 @@ if ok then
                 { name = "buffer" },
             })
     })
-    cmp.setup.filetype({ "bash.scallopedit" }, {
+    cmp.setup.filetype({ "lua" }, {
         sources = {
             { name = "nvim_lsp" },
+            { name = "buffer" },
+            { name = "nvim_lua" },
+        },
+    })
+    cmp.setup.filetype({ "bash.scallopedit" }, {
+        sorting = {
+            comparators = {
+                compare.offset,
+                compare.kind,
+                compare.order,
+                compare.score,
+                compare.exact,
+                compare.recently_used,
+                compare.locality,
+                compare.length,
+            },
+        },
+        sources = {
+            { name = "nvim_lsp" },
+            { name = "scallop_shell_history", entry_filter = history_filter },
+            { name = "buffer-lines",          entry_filter = history_filter },
             {
                 name = "path",
                 option = {
@@ -286,17 +323,6 @@ if ok then
                 },
             },
         },
-        {
-            { name = "buffer" },
-            {
-                name = "path",
-                option = {
-                    get_cwd = function()
-                        return vim.fn.getcwd()
-                    end
-                },
-            },
-        }
     })
 end
 
