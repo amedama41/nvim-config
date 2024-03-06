@@ -246,7 +246,7 @@ if ok then
         if pattern:match_str(text) == nil then
             return false
         end
-        if text:find("^ghp_") ~= nil then
+        if vim.startswith(text, "ghp_") then
             return false
         end
         return true
@@ -300,14 +300,19 @@ if ok then
     cmp.setup.filetype({ "bash.scallopedit" }, {
         sorting = {
             comparators = {
-                compare.offset,
-                compare.kind,
-                compare.order,
-                compare.score,
-                compare.exact,
-                compare.recently_used,
-                compare.locality,
-                compare.length,
+                function (entry1, entry2)
+                    local source_rank = {
+                        ["buffer-lines"] = 0,
+                        ["scallop_shell_history"] = 1,
+                        ["nvim_lsp"] = 2,
+                    }
+                    local source_rank1 = source_rank[entry1.source.name]
+                    local source_rank2 = source_rank[entry2.source.name]
+                    if source_rank1 ~= source_rank2 then
+                        return source_rank1 < source_rank2
+                    end
+                    return entry2.id < entry1.id
+                end
             },
         },
         sources = {

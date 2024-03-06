@@ -42,7 +42,7 @@ let colors_name = "mine"
 :hi Function guifg=#57FFFF gui=bold cterm=bold ctermfg=14 " aqua
 :hi Structure guifg=lightgreen ctermfg=lightgreen
 :hi LineNr guifg=darkgray ctermfg=darkgray
-:hi Pmenu guibg=black guifg=white ctermbg=black ctermfg=white
+:hi Pmenu guibg=#202020 guifg=white ctermbg=black ctermfg=white
 :hi PmenuSel guibg=#c91b00 guifg=white ctermbg=DarkRed ctermfg=white
 " :hi Ignore guifg=grey40 cterm=bold ctermfg=7
 " :hi Todo guifg=orangered guibg=yellow2
