@@ -298,21 +298,58 @@ if ok then
         },
     })
     cmp.setup.filetype({ "bash.scallopedit" }, {
+        formatting = {
+            format = function(entry, vim_item)
+                if entry.source.name == "scallop_shell_history" then
+                    vim_item.kind = "History"
+                elseif entry.source.name == "buffer-lines" then
+                    vim_item.kind = "Scallop"
+                end
+                if #vim_item.word > 80 then
+                    vim_item.abbr = vim_item.word:sub(1, 80) .. "..."
+                end
+                return vim_item
+            end,
+        },
+        matching = {
+            disallow_fuzzy_matching = true,
+            disallow_partial_matching = true,
+        },
         sorting = {
             comparators = {
-                function (entry1, entry2)
+                function(entry1, entry2)
                     local source_rank = {
-                        ["buffer-lines"] = 0,
-                        ["scallop_shell_history"] = 1,
-                        ["nvim_lsp"] = 2,
+                        ["path"] = 0,
+                        ["buffer-lines"] = 1,
+                        ["scallop_shell_history"] = 2,
+                        ["nvim_lsp"] = 3,
                     }
                     local source_rank1 = source_rank[entry1.source.name]
                     local source_rank2 = source_rank[entry2.source.name]
-                    if source_rank1 ~= source_rank2 then
-                        return source_rank1 < source_rank2
+                    if source_rank1 == source_rank2 then
+                        return nil
                     end
-                    return entry2.id < entry1.id
-                end
+                    return source_rank1 < source_rank2
+                end,
+                function(entry1, entry2)
+                    if entry1.source.name == "scallop_shell_history" then
+                        return entry1.id < entry2.id
+                    end
+                    if entry1.source.name == "buffer-line" then
+                        return entry2.id < entry1.id
+                    end
+                    return nil
+                end,
+                compare.offset,
+                compare.exact,
+                -- compare.scopes,
+                compare.score,
+                compare.recently_used,
+                compare.locality,
+                compare.kind,
+                -- compare.sort_text,
+                compare.length,
+                compare.order,
             },
         },
         sources = {
