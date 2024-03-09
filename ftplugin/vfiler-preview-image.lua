@@ -15,14 +15,17 @@ do
 end
 
 
-local pixel_size = "\x1b[6;14;7"
+local pixel_size = "\x1b[6;28;14"
 
 local timg_cmd = { "timg", "-p", "s", "-U" }
 table.insert(timg_cmd, "-I")
 table.insert(timg_cmd, "-bwhite")
-if vim.fn.fnamemodify(path, ":e") == "gif" then
+local ext = vim.fn.fnamemodify(path, ":e")
+if ext == "gif" then
     table.insert(timg_cmd, "--loops=10")
     -- pixel_size = "\x1b[6;20;10"
+elseif ext == "pdf" then
+    table.insert(timg_cmd, "--frames=1")
 end
 -- TODO: webp alpha
 
@@ -39,11 +42,24 @@ vim.defer_fn(function()
     local row_pos = config.row[false] + 3
     local win_height = config.height
     local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, config.col[false])
-    local buffer = csi_set_pos
-    local did_exit = false
 
-    -- Save cursor position
-    vim.fn.chansend(vim.v.stderr, "\x1b[s")
+    local did_exit = false
+    local buffer = csi_set_pos
+    local write_queue = {}
+    local write_callback
+    local stderr = vim.loop.new_tty(2, false)
+    write_callback = function(err)
+        if did_exit then
+            return
+        end
+        if err then
+            print(err)
+        end
+        table.remove(write_queue, 1)
+        if #write_queue > 0 then
+            stderr:write(write_queue[1], write_callback)
+        end
+    end
 
     local jobid = vim.fn.jobstart(timg_cmd, {
         clear_env = true,
@@ -77,36 +93,41 @@ vim.defer_fn(function()
 
                 buffer = buffer .. line:sub(1, pos2)
                 -- vim.fn.appendbufline(1, "$", buffer)
-                buffer = buffer:gsub("\x1b%[%d+A", csi_set_pos, 1)
-                buffer = buffer:gsub("\x1bPq\x1bPq", "\x1bPq", 1)
-                local index = 1
-                while index <= #buffer do
-                    local len = vim.fn.chansend(vim.v.stderr, buffer:sub(index, index + 32))
-                    index = index + len
+                local sixel_pos = buffer:find("\x1bPq\x1bPq")
+                if sixel_pos ~= nil then
+                    buffer = buffer:sub(sixel_pos + 3)
+                    -- 25: hide cursor
+                    -- 80: show sixel in other window
+                    -- 7730: sixel scroll left mode
+                    -- 8452: sixel scroll right mode
+                    buffer = "\x1b[?25l\x1b[80h\x1b[?7730h\x1b[?8452l" .. buffer
+                    buffer = csi_set_pos .. buffer
+                    -- vim.fn.appendbufline(1, "$", buffer)
+                    table.insert(write_queue, csi_set_pos .. buffer)
+                    if #write_queue == 1 then
+                        stderr:write(write_queue[1], write_callback)
+                    end
                 end
                 buffer = line:sub(pos2 + 1)
             end
-        end,
-        on_exit = function(_, _, _)
-            did_exit = true
         end,
         stdout_buffered = false,
     })
 
     if jobid <= 0 then
+        stderr:close()
         return
     end
 
     vim.api.nvim_buf_attach(bufnr, false, {
         on_detach = function()
             did_exit = true
+            stderr:close()
             vim.fn.jobstop(jobid)
             -- Release iTerm sixel resource
             if vim.env.TERM_PROGRAM == "iTerm.app" then
-                vim.fn.chansend(vim.v.stderr, "\x1b]1337;ClearScrollback\x1b\\")
+                vim.fn.chansend(vim.v.stderr, "\x1b\\\x1b]1337;ClearScrollback\x1b\\")
             end
-            -- Restore cursor position
-            vim.fn.chansend(vim.v.stderr, "\x1b[u")
             -- Avoid textlock
             vim.schedule(function()
                 -- Redraw display

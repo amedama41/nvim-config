@@ -85,15 +85,18 @@ local function read_preview_file(path, default_read_file_func)
                 mediatype = "audio"
             end
         end
-        return lines, ("vfiler-preview-%s.%s"):format(mediatype, subtype)
+        if mediatype ~= "audio" then
+            mediatype = "video"
+        end
+        return lines, "vfiler-preview-" .. mediatype
     end
     if mediatype == "image" then
         local _, lines = sync_jobstart({ "sips", "-g", "all", path }, 1000, false)
-        return lines, "vfiler-preview-image." .. subtype
+        return lines, "vfiler-preview-image"
     end
-    -- if subtype == "pdf" then
-    --     return {}, "vfiler-preview-image." .. subtype
-    -- end
+    if subtype == "pdf" then
+        return {}, "vfiler-preview-image"
+    end
     if subtype == "json" then
         return default_read_file_func(path)
     end
