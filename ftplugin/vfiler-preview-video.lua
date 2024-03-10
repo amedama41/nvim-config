@@ -37,7 +37,7 @@ vim.defer_fn(function()
     local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, config.col[false] + 3)
 
     local did_exit = false
-    local buffer = csi_set_pos
+    local buffer = ""
     local write_queue = {}
     local write_callback
     local stderr = vim.loop.new_tty(2, false)
@@ -96,7 +96,7 @@ vim.defer_fn(function()
                     buffer = "\x1b[?25l\x1b[80h\x1b[?7730h\x1b[?8452l" .. buffer
                     buffer = csi_set_pos .. buffer
                     -- vim.fn.appendbufline(1, "$", buffer)
-                    table.insert(write_queue, csi_set_pos .. buffer)
+                    table.insert(write_queue, buffer)
                     if #write_queue == 1 then
                         stderr:write(write_queue[1], write_callback)
                     end
