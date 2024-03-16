@@ -15,15 +15,6 @@ end
 
 local packer_bootstrap = ensure_packer()
 
-local function setup_deol()
-    vim.cmd [[
-        let g:deol#prompt_pattern = "Macbook\\$\\s"
-        let g:deol#floating_border = "rounded"
-        let g:deol#external_history_path = "~/.bash_history"
-        let g:deol#shell_history_max = 10000
-    ]]
-end
-
 require("packer").startup(function(use)
     use "wbthomason/packer.nvim"
 
@@ -75,7 +66,6 @@ require("packer").startup(function(use)
         end,
     }
     -- Terminal
-    use { "Shougo/deol.nvim", config = setup_deol, disable = true }
     use "amedama41/scallop.nvim"
     -- Git diff
     use "sindrets/diffview.nvim"
@@ -148,23 +138,34 @@ if ok then
     -- vim.lsp.set_log_level("debug")
     vim.lsp.set_log_level("off")
     local lspconfig = require("lspconfig")
-    local lspconfig_configs = require("lspconfig.configs")
-    if not lspconfig_configs.bashls_mod then
-        lspconfig_configs.bashls_mod = {
-            default_config = {
+    -- local lspconfig_configs = require("lspconfig.configs")
+    -- if not lspconfig_configs.bashls_mod then
+    --     lspconfig_configs.bashls_mod = {
+    --         default_config = {
+    --             cmd = { "bash-language-server-mod", "start" },
+    --             filetypes = { "bash", "bash.*" },
+    --             single_file_support = true,
+    --             root_dir = function()
+    --                 return vim.fn.getcwd()
+    --             end,
+    --             capabilities = require("cmp_nvim_lsp").default_capabilities(),
+    --         },
+    --     }
+    -- end
+    -- local server_mappings = require("mason-lspconfig.mappings.server")
+    -- server_mappings.lspconfig_to_package["bashls_mod"] = "bash-language-server-mod"
+    -- server_mappings.package_to_lspconfig["bash-language-server-mod"] = "bashls_mod"
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "bash.scallopedit" },
+        callback = function()
+            vim.lsp.start({
+                name = "bashls_mod",
+                -- cmd = { "/Users/Macbook/repos/bash-language-server/server/out/cli.js", "start" },
                 cmd = { "bash-language-server-mod", "start" },
-                filetypes = { "bash", "bash.*" },
-                single_file_support = true,
-                root_dir = function()
-                    return vim.fn.getcwd()
-                end,
-                capabilities = require("cmp_nvim_lsp").default_capabilities(),
-            },
-        }
-    end
-    local server_mappings = require("mason-lspconfig.mappings.server")
-    server_mappings.lspconfig_to_package["bashls_mod"] = "bash-language-server-mod"
-    server_mappings.package_to_lspconfig["bash-language-server-mod"] = "bashls_mod"
+                root_dir = vim.fn.getcwd()
+            })
+        end,
+    })
     mason_lspconfig.setup_handlers({
         function(server)
             lspconfig[server].setup {
@@ -482,11 +483,17 @@ if ok then
                 ignored = false,
                 untracked = true,
             },
+            preview = {
+                -- layout = "right",
+                -- height = vim.o.lines - 5,
+                -- width = vim.o.columns - 30,
+            },
         },
         mappings = {
             ["gb"] = vfiler_action.list_bookmark,
             ["gB"] = vfiler_action.add_bookmark,
             ["gj"] = vfiler_action.move_cursor_down_sibling,
+            ["gJ"] = vfiler_action.move_cursor_top_sibling,
             ["gk"] = vfiler_action.move_cursor_up_sibling,
             ["gn"] = vfiler_action.new_file,
             ["gp"] = vfiler_action.toggle_auto_preview,
@@ -791,6 +798,7 @@ if ok then
     local builtin = require("telescope.builtin")
     local keymap_opts = { noremap = true, silent = true }
     vim.keymap.set("n", "<C-\\>b", builtin.buffers, keymap_opts)
+    vim.keymap.set("n", "<C-\\>c", builtin.command_history, keymap_opts)
     vim.keymap.set("n", "<C-\\>f", builtin.find_files, keymap_opts)
     vim.keymap.set("n", "<C-\\>F", function()
         builtin.find_files { hidden = true, no_ignore = true, no_ignore_parent = true }

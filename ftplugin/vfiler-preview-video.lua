@@ -33,7 +33,7 @@ vim.defer_fn(function()
 
     local config = vim.api.nvim_win_get_config(winid)
     local row_pos = config.row[false] + config.height / 2 + 3
-    local win_height = config.height / 2
+    local win_height = math.floor(config.height / 2)
     local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, config.col[false] + 3)
 
     local did_exit = false
