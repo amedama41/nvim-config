@@ -60,9 +60,11 @@ do
         end
 
         local config = vim.api.nvim_win_get_config(winid)
-        local row_pos = config.row[false] + 3
-        local win_height = config.height
-        local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, config.col[false] + 3)
+        local win_height = config.height or vim.o.lines
+        local win_width = config.width or vim.o.columns / 2
+        local row_pos = (config.row and (config.row[false] + 3)) or 0
+        local col_pos = (config.height and (config.col[false] + 3)) or 0
+        local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, col_pos)
 
         local did_exit = false
         local buffer = ""
@@ -85,7 +87,7 @@ do
         local jobid = vim.fn.jobstart(timg_cmd, {
             clear_env = true,
             pty = true,
-            width = config.width,
+            width = win_width,
             height = win_height,
             on_stdout = function(jobid, data, _)
                 if did_exit then

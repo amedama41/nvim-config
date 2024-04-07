@@ -20,7 +20,6 @@ local pixel_size = "\x1b[6;20;10"
 local timg_cmd = { "timg", "-p", "s", "-U" }
 table.insert(timg_cmd, "-a")
 table.insert(timg_cmd, "-V")
--- TODO: alpha
 
 table.insert(timg_cmd, path)
 
@@ -32,9 +31,11 @@ vim.defer_fn(function()
     end
 
     local config = vim.api.nvim_win_get_config(winid)
-    local row_pos = config.row[false] + config.height / 2 + 3
-    local win_height = math.floor(config.height / 2)
-    local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, config.col[false] + 3)
+    local win_height = math.floor((config.height or vim.o.lines) / 2)
+    local win_width = config.width or math.floor(vim.o.columns / 2)
+    local row_pos = (config.row and (config.row[false] + win_height + 3)) or win_height
+    local col_pos = (config.height and (config.col[false] + 3)) or 0
+    local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, col_pos)
 
     local did_exit = false
     local buffer = ""
@@ -57,7 +58,7 @@ vim.defer_fn(function()
     local jobid = vim.fn.jobstart(timg_cmd, {
         clear_env = true,
         pty = true,
-        width = config.width,
+        width = win_width,
         height = win_height,
         on_stdout = function(jobid, data, _)
             if did_exit then

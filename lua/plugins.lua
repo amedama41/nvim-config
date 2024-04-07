@@ -29,7 +29,25 @@ require("packer").startup(function(use)
     use "hrsh7th/cmp-nvim-lsp"
     use "hrsh7th/cmp-path"
     use "hrsh7th/cmp-nvim-lua"
-    use "hrsh7th/vim-vsnip"
+    use {
+        "hrsh7th/vim-vsnip",
+        config = function()
+            vim.keymap.set("i", "<Tab>", function()
+                if vim.fn["vsnip#jumpable"](1) == 1 then
+                    return "<plug>(vsnip-jump-next)"
+                else
+                    return "<tab>"
+                end
+            end, { expr = true })
+            vim.keymap.set("i", "<S-Tab>", function()
+                if vim.fn["vsnip#jumpable"](-11) == 1 then
+                    return "<plug>(vsnip-jump-prev)"
+                else
+                    return "<tab>"
+                end
+            end, { expr = true })
+        end,
+    }
     use "amarakon/nvim-cmp-buffer-lines"
 
     -- Tree-sitter --
@@ -259,6 +277,7 @@ if ok then
                 vim.fn["vsnip#anonymous"](args.body)
             end
         },
+        preselect = cmp.PreselectMode.None,
         window = {
             -- completion = cmp.config.window.bordered(),
             -- documentation = cmp.config.window.bordered(),
