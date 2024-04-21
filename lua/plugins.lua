@@ -180,7 +180,7 @@ if ok then
                 name = "bashls_mod",
                 -- cmd = { "/Users/Macbook/repos/bash-language-server/server/out/cli.js", "start" },
                 cmd = { "bash-language-server-mod", "start" },
-                root_dir = vim.fn.getcwd()
+                root_dir = nil,
             })
         end,
     })
@@ -332,10 +332,12 @@ if ok then
             end,
         },
         matching = {
-            disallow_fuzzy_matching = false,
-            disallow_fullfuzzy_matching = false,
+            disallow_fuzzy_matching = true,
+            disallow_fullfuzzy_matching = true,
             disallow_partial_fuzzy_matching = true,
             disallow_partial_matching = false,
+            disallow_prefix_unmatching = false,
+            disallow_symbol_nonprefix_matching = false,
         },
         sorting = {
             comparators = {
