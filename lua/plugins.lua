@@ -32,16 +32,16 @@ require("packer").startup(function(use)
     use {
         "hrsh7th/vim-vsnip",
         config = function()
-            vim.keymap.set("i", "<Tab>", function()
+            vim.keymap.set({"i", "s"}, "<Tab>", function()
                 if vim.fn["vsnip#jumpable"](1) == 1 then
-                    return "<plug>(vsnip-jump-next)"
+                    return "<Plug>(vsnip-jump-next)"
                 else
                     return "<tab>"
                 end
             end, { expr = true })
-            vim.keymap.set("i", "<S-Tab>", function()
-                if vim.fn["vsnip#jumpable"](-11) == 1 then
-                    return "<plug>(vsnip-jump-prev)"
+            vim.keymap.set({"i", "s"}, "<S-Tab>", function()
+                if vim.fn["vsnip#jumpable"](-1) == 1 then
+                    return "<Plug>(vsnip-jump-prev)"
                 else
                     return "<tab>"
                 end
