@@ -32,14 +32,14 @@ require("packer").startup(function(use)
     use {
         "hrsh7th/vim-vsnip",
         config = function()
-            vim.keymap.set({"i", "s"}, "<Tab>", function()
+            vim.keymap.set({ "i", "s" }, "<Tab>", function()
                 if vim.fn["vsnip#jumpable"](1) == 1 then
                     return "<Plug>(vsnip-jump-next)"
                 else
                     return "<tab>"
                 end
             end, { expr = true })
-            vim.keymap.set({"i", "s"}, "<S-Tab>", function()
+            vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
                 if vim.fn["vsnip#jumpable"](-1) == 1 then
                     return "<Plug>(vsnip-jump-prev)"
                 else
@@ -58,30 +58,24 @@ require("packer").startup(function(use)
     use "obaland/vfiler.vim"
     -- Fuzzy finder
     use { "nvim-telescope/telescope.nvim", requires = "nvim-lua/plenary.nvim" }
-    use { "LukasPietzschmann/telescope-tabs",
+    use {
+        "amedama41/telescope-project-tabs.nvim",
         requires = "nvim-telescope/telescope.nvim",
         config = function()
-            require("telescope").load_extension "telescope-tabs"
-            local telescope_tabs = require("telescope-tabs")
-            telescope_tabs.setup({
-                entry_formatter = function(tab_id, bufids, names, paths, is_current)
-                    local tabnr = vim.api.nvim_tabpage_get_number(tab_id)
-                    return ("%s %d: %s"):format(is_current and "%" or " ", tabnr, vim.fn.getcwd(1, tabnr))
-                end,
-                entry_ordinal = function(tab_id, bufids, names, paths, is_current)
-                    local tabnr = vim.api.nvim_tabpage_get_number(tab_id)
-                    return ("%d: %s"):format(tabnr, vim.fn.getcwd(1, tabnr))
-                end,
-                close_tab_shortcut_i = "<C-g><C-d>",
-                close_tab_shortcut_n = "<C-g><C-d>",
+            local project_tabs = require "telescope-project-tabs"
+            project_tabs.setup({
+                root_dirs = {
+                    "~/.local/share/nvim/site/pack/packer/start",
+                    "~/repos",
+                },
+                max_depth = 3
             })
-            vim.keymap.set("n", "<C-\\><C-t>", function()
-                telescope_tabs.list_tabs()
-            end, { noremap = true, silent = true })
-            vim.keymap.set("n", "<C-\\><C-^>", function()
-                telescope_tabs.go_to_previous()
-            end, { noremap = true, silent = true })
-        end,
+            local keymap_opts = { noremap = true, silent = true }
+            vim.keymap.set("n", "<C-\\>p", project_tabs.switch_project, keymap_opts)
+            vim.keymap.set("n", "<C-\\>P", function()
+                project_tabs.switch_project({ only_opened = true })
+            end, keymap_opts)
+        end
     }
     -- Terminal
     use "amedama41/scallop.nvim"
@@ -816,6 +810,9 @@ if ok then
                 },
             },
             lsp_references = { include_current_line = true },
+        },
+        extensions = {
+            ["project-tabs"] = {},
         },
     })
     local builtin = require("telescope.builtin")
