@@ -10,9 +10,10 @@ return {
         "hrsh7th/cmp-path",
     },
     config = function()
+        local env = require("env")
         require("scallop.configs").setup({
             options = {
-                prompt_pattern = require("prompt_pattern"),
+                prompt_pattern = env.prompt_pattern,
                 history_filepath = "~/.bash_history",
                 history_filter = function(data)
                     if data:find("[:graph:]%s+[:graph:]") == nil then

@@ -36,15 +36,13 @@ return {
                 })
             end,
             ["efm"] = function()
+                local env = require("env")
                 local efmls_configs_ok, _ = pcall(require, "efmls-configs")
                 local merge_config = function(config1, config2)
                     return vim.tbl_extend("force", config1, config2)
                 end
                 if efmls_configs_ok then
-                    local py_env = {
-                        "PATH=./test_modules/bin:./.venv/bin:" .. vim.env.PATH,
-                        "PYTHONPATH=./test_modules",
-                    }
+                    local py_env = env.python_env
 
                     lspconfig.efm.setup({
                         init_options = {
