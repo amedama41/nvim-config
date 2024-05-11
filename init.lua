@@ -3,7 +3,7 @@ vim.opt.encoding = "utf-8"
 
 -- 文字コード・改行コード設定
 vim.opt.fileencodings = {
-    "iso-2022-jp", "euc-jp", "cp932", "ucs-bom", "utf-8", "default", "latin1"
+    "utf-8", "iso-2022-jp", "euc-jp", "cp932", "ucs-bom", "default", "latin1"
 }
 vim.opt.fileformats = {"unix", "dos", "mac"}
 vim.opt.spelllang:append({"cjk"})
@@ -41,7 +41,7 @@ vim.opt.smartindent = true  -- オートインデント
 vim.opt.backspace = {"indent", "eol", "start"}  -- 改行/インデント/挿入区間前の削除可能化
 vim.opt.hidden = true   -- 編集中バッファの非表示化可能
 vim.opt.visualbell = true   -- 音声ベルの代わりに表示ベルを使用
-vim.api.nvim_set_option("t_vb", "")
+-- vim.api.nvim_set_option("t_vb", "")
 
 -- 補完設定
 vim.opt.complete:remove({"i"})  -- 補完候補からインクルードファイルの除去
@@ -78,8 +78,6 @@ vim.keymap.set({"n", "x", "o"}, "gk", "k", keymap_opt)
 vim.keymap.set({"n", "x", "o"}, "n", "nzz", keymap_opt)
 vim.keymap.set({"n", "x", "o"}, "N", "Nzz", keymap_opt)
 vim.keymap.set("n", "<C-l>", ":<C-u>nohlsearch<CR><C-l>", keymap_opt)
-vim.keymap.set("n", "<C-n>", "gt", keymap_opt)
-vim.keymap.set("n", "<C-p>", "gT", keymap_opt)
 vim.keymap.set("n", "r", "gr", keymap_opt)
 vim.keymap.set("n", "gr", "r", keymap_opt)
 vim.keymap.set("n", "R", "gR", keymap_opt)
@@ -209,4 +207,4 @@ vim.env.GIT_EDITOR = "nvim -c GitEdit "
 vim.cmd "colorscheme mine"
 vim.opt.termguicolors = true
 
-require "plugins"
+require "lazynvim"
