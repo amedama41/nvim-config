@@ -62,8 +62,8 @@ do
         local config = vim.api.nvim_win_get_config(winid)
         local win_height = config.height or vim.o.lines
         local win_width = config.width or vim.o.columns / 2
-        local row_pos = (config.row and (config.row[false] + 3)) or 0
-        local col_pos = (config.height and (config.col[false] + 3)) or 0
+        local row_pos = (config.row and (config.row + 3)) or 0
+        local col_pos = (config.height and (config.col + 3)) or 0
         local csi_set_pos = ("\x1b[%d;%dH"):format(row_pos, col_pos)
 
         local did_exit = false
