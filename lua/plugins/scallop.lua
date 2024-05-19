@@ -6,7 +6,6 @@ return {
     dependencies = {
         "hrsh7th/nvim-cmp",
         "hrsh7th/cmp-nvim-lsp",
-        "amarakon/nvim-cmp-buffer-lines",
         "hrsh7th/cmp-path",
     },
     config = function()
@@ -60,8 +59,6 @@ return {
                 format = function(entry, vim_item)
                     if entry.source.name == "scallop_shell_history" then
                         vim_item.kind = "History"
-                    elseif entry.source.name == "buffer-lines" then
-                        vim_item.kind = "Scallop"
                     end
                     if #vim_item.word > 80 then
                         vim_item.abbr = vim_item.word:sub(1, 80) .. "..."
@@ -82,9 +79,8 @@ return {
                     function(entry1, entry2)
                         local source_rank = {
                             ["path"] = 0,
-                            ["buffer-lines"] = 1,
-                            ["scallop_shell_history"] = 2,
-                            ["nvim_lsp"] = 3,
+                            ["scallop_shell_history"] = 1,
+                            ["nvim_lsp"] = 2,
                         }
                         local source_rank1 = source_rank[entry1.source.name]
                         local source_rank2 = source_rank[entry2.source.name]
@@ -96,9 +92,6 @@ return {
                     function(entry1, entry2)
                         if entry1.source.name == "scallop_shell_history" then
                             return entry1.id < entry2.id
-                        end
-                        if entry1.source.name == "buffer-line" then
-                            return entry2.id < entry1.id
                         end
                         return nil
                     end,
@@ -117,7 +110,6 @@ return {
             sources = {
                 { name = "nvim_lsp" },
                 { name = "scallop_shell_history", entry_filter = history_filter, max_item_count = 50 },
-                { name = "buffer-lines", entry_filter = history_filter },
                 {
                     name = "path",
                     option = {
