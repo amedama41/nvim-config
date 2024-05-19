@@ -57,7 +57,7 @@ return {
                     end
                     action.clear_selected_all(vfiler, context, view)
                 end,
-                ['I'] = action.jump_to_directory,
+                ["I"] = action.jump_to_directory,
                 ["j"] = action.move_cursor_down,
                 ["J"] = function(vfiler, context, view)
                     local selected_items = view:selected_items()
@@ -76,7 +76,7 @@ return {
                         plugins = "scallop.nvim",
                         wait = true,
                     })
-                    require("scallop").start_terminal_edit(args, context.root.path)
+                    require("scallop").open_edit(args, context.root.path)
                 end,
                 ["k"] = action.move_cursor_up,
                 ["l"] = action.open,
