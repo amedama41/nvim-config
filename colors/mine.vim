@@ -54,7 +54,7 @@ let colors_name = "mine"
 :hi DiffAdd ctermbg=4 guibg=DarkBlue guifg=none
 :hi DiffChange term=bold guibg=black guifg=none ctermbg=16 " grey0
 :hi DiffDelete cterm=bold ctermfg=4 ctermbg=6 guibg=darkcyan
-:hi DiffText cterm=bold ctermbg=1 guibg=#5f0000 guifg=none
+" :hi DiffText cterm=bold ctermbg=1 guibg=#5f0000 guifg=none
 :hi DiffText term=reverse gui=bold guibg=#5f0000 cterm=bold ctermbg=52 " DarkRed
 :hi diffAdded guifg=#5ff967 ctermfg=10
 :hi diffRemoved guifg=#ff6d67 ctermfg=9
@@ -90,5 +90,5 @@ let colors_name = "mine"
 :hi @markup.escape guifg=gray ctermfg=gray
 :hi @markup.raw guifg=#A4FEFF ctermfg=lightcyan
 :hi @markup.quote guifg=gray ctermfg=gray
-:hi! link @markup.heading @text.title
+:hi! link @markup.heading Title
 :hi @markup.heading.1 guifg=#FFFF55 gui=bold,underline cterm=bold,underline ctermfg=yellow

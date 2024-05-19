@@ -1,34 +1,17 @@
 ---start job synchronously
 ---@param cmd table
 ---@param timeout_ms number
----@param pty boolean
 ---@return integer
 ---@return table
-local function sync_jobstart(cmd, timeout_ms, pty)
-    local lines = {}
-    local jobid = vim.fn.jobstart(cmd, {
+local function sync_jobstart(cmd, timeout_ms)
+    local obj = vim.system(cmd, {
         clear_env = true,
-        detach = false,
-        pty = pty,
-        stdin = nil,
-        on_stdout = function(chanid, data, name)
-            if data[1] ~= "" then
-                lines = data
-            end
-        end,
-        on_stderr = function(chanid, data, name)
-            if data[1] ~= "" then
-                lines = data
-            end
-        end,
-        stdout_buffered = true,
-        stderr_buffered = true,
-    })
-    local exitcode = vim.fn.jobwait({ jobid }, timeout_ms)[1]
-    if exitcode == -1 then
-        vim.fn.jobstop(jobid)
-    end
-    return exitcode, lines
+        detach = true,
+        text = true,
+        timeout = timeout_ms,
+    }, nil):wait(timeout_ms)
+    local text = (obj.stdout ~= "" and obj.stdout) or obj.stderr
+    return obj.code, vim.split(text, "\n", { plain = true })
 end
 
 ---return mediatype and subtype
@@ -36,7 +19,7 @@ end
 ---@return string
 ---@return string
 local function get_filetype(path)
-    local exitcode, lines = sync_jobstart({ "file", "-Ib", path }, 1000, false)
+    local exitcode, lines = sync_jobstart({ "file", "-Ib", path }, 1000)
     if exitcode ~= 0 or lines[1] == "" then
         return "", ""
     end
@@ -73,7 +56,7 @@ local function read_preview_file(path, default_read_file_func)
         return default_read_file_func(path)
     end
     if mediatype == "audio" or is_video(path, mediatype, subtype) then
-        local _, lines = sync_jobstart({ "ffprobe", "-hide_banner", "-i", path }, 1000, false)
+        local _, lines = sync_jobstart({ "ffprobe", "-hide_banner", "-i", path }, 1000)
         if subtype == "mp4" then
             local has_video = false
             for _, line in pairs(lines) do
@@ -91,7 +74,7 @@ local function read_preview_file(path, default_read_file_func)
         return lines, "vfiler-preview-" .. mediatype
     end
     if mediatype == "image" then
-        local _, lines = sync_jobstart({ "sips", "-g", "all", path }, 1000, false)
+        local _, lines = sync_jobstart({ "sips", "-g", "all", path }, 1000)
         return lines, "vfiler-preview-image"
     end
     if subtype == "pdf" then
@@ -101,23 +84,23 @@ local function read_preview_file(path, default_read_file_func)
         return default_read_file_func(path)
     end
     if subtype == "zip" then
-        local _, lines = sync_jobstart({ "unzip", "-l", path }, 1000, false)
+        local _, lines = sync_jobstart({ "unzip", "-l", path }, 1000)
         return lines, ""
     end
     if subtype == "gzip" then
-        local exitcode, lines = sync_jobstart({ "tar", "tzf", path }, 1000, false)
+        local exitcode, lines = sync_jobstart({ "tar", "tzf", path }, 1000)
         if exitcode == 0 then
             return lines, "tar"
         end
 
-        local _, gunzip_lines = sync_jobstart({ "gunzip", "-l", path }, 1000, false)
+        local _, gunzip_lines = sync_jobstart({ "gunzip", "-l", path }, 1000)
         return gunzip_lines, ""
     end
     if subtype == "x-rar" then
-        local _, lines = sync_jobstart({ "unrar", "ltabp", path }, 1000, true)
+        local _, lines = sync_jobstart({ "unrar", "ltabp", path }, 1000)
         return lines, ""
     end
-    local _, lines = sync_jobstart({ "xxd", path }, 1000, false)
+    local _, lines = sync_jobstart({ "xxd", path }, 1000)
     return lines, ""
 end
 
@@ -128,7 +111,7 @@ local function read_file_func(path, default_read_file_func)
         "ffprobe", "-v", "0", "-select_streams", "V:0",
         "-show_entries", "format=duration", "-of", "default=nw=1:nk=1",
         path,
-    }, 1000, false)
+    }, 1000)
     if exitcode == 0 then
         local time = tonumber(lines[1])
         if time ~= nil then

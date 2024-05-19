@@ -1,14 +1,9 @@
 return {
     "obaland/vfiler.vim",
     config = function()
-        local vfiler_action = require("vfiler/action")
+        local action = require("vfiler/action")
         local vfiler_config = require("vfiler/config")
-        vfiler_config.unmap("<C-p>")
-        vfiler_config.unmap("b")
-        vfiler_config.unmap("B")
-        vfiler_config.unmap("D")
-        vfiler_config.unmap("N")
-        vfiler_config.unmap("v")
+        vfiler_config.clear_mappings()
         vfiler_config.setup({
             options = {
                 auto_cd = true,
@@ -25,20 +20,46 @@ return {
                 },
                 preview = {
                     -- layout = "right",
-                    -- height = vim.o.lines - 5,
+                    height = vim.o.lines - 6,
                     -- width = vim.o.columns - 30,
                 },
             },
             mappings = {
-                ["gb"] = vfiler_action.list_bookmark,
-                ["gB"] = vfiler_action.add_bookmark,
-                ["gj"] = vfiler_action.move_cursor_down_sibling,
-                ["gJ"] = vfiler_action.move_cursor_top_sibling,
-                ["gk"] = vfiler_action.move_cursor_up_sibling,
-                ["gn"] = vfiler_action.new_file,
-                ["gp"] = vfiler_action.toggle_auto_preview,
-                ["g/"] = vfiler_action.jump_to_root,
-                ["H"] = function(vfiler, context, view)
+                ["."] = action.toggle_show_hidden,
+                ["~"] = action.jump_to_home,
+                ["*"] = action.toggle_select_all,
+                ["}"] = action.move_cursor_down_sibling,
+                ["{"] = action.move_cursor_up_sibling,
+                ["a"] = action.new_file,
+                ["A"] = action.new_directory,
+                ["cc"] = action.copy_to_filer,
+                ["C"] = action.copy,
+                ["dd"] = action.delete,
+                ["gb"] = action.list_bookmark,
+                ["gB"] = action.add_bookmark,
+                ["gg"] = action.move_cursor_top,
+                ["gl"] = action.switch_to_drive,
+                ["gp"] = action.toggle_auto_preview,
+                ["gs"] = action.toggle_sort,
+                ["g/"] = action.jump_to_root,
+                -- ['G'] = vfiler_action.move_cursor_bottom,
+                ["h"] = action.close_tree_or_cd,
+                ["ip"] = function(vfiler, context, view)
+                    for _, item in pairs(view:selected_items()) do
+                        vim.fn.system("open -a preview " .. vim.fn.shellescape(item.path))
+                    end
+                    action.clear_selected_all(vfiler, context, view)
+                end,
+                ["io"] = function(vfiler, context, view)
+                    local play_ok, play_items = pcall(require, "play_items")
+                    if play_ok then
+                        play_items(view:selected_items())
+                    end
+                    action.clear_selected_all(vfiler, context, view)
+                end,
+                ['I'] = action.jump_to_directory,
+                ["j"] = action.move_cursor_down,
+                ["J"] = function(vfiler, context, view)
                     local selected_items = view:selected_items()
                     ---@type string?
                     local args = ""
@@ -47,7 +68,7 @@ return {
                             args = args .. " " .. vim.fn.shellescape(item.path)
                         end
                     end
-                    vfiler_action.clear_selected_all(vfiler, context, view)
+                    action.clear_selected_all(vfiler, context, view)
                     if args == "" then
                         args = nil
                     end
@@ -57,50 +78,63 @@ return {
                     })
                     require("scallop").start_terminal_edit(args, context.root.path)
                 end,
-                ["ip"] = function(vfiler, context, view)
-                    for _, item in pairs(view:selected_items()) do
-                        vim.fn.system("open -a preview " .. vim.fn.shellescape(item.path))
-                    end
-                    vfiler_action.clear_selected_all(vfiler, context, view)
-                end,
-                ["io"] = function(vfiler, context, view)
-                    local play_ok, play_items = pcall(require, "play_items")
-                    if play_ok then
-                        play_items(view:selected_items())
-                    end
-                    vfiler_action.clear_selected_all(vfiler, context, view)
-                end,
-                ["j"] = vfiler_action.move_cursor_down,
-                ["k"] = vfiler_action.move_cursor_up,
-                ["l"] = vfiler_action.open,
+                ["k"] = action.move_cursor_up,
+                ["l"] = action.open,
+                ["mm"] = action.move_to_filer,
+                -- ["M"] = vfiler_action.move,
                 ["o"] = function(vfiler, context, view)
                     local item = view:get_item()
                     if item.type == "directory" then
                         if item.opened == true then
-                            vfiler_action.close_tree_or_cd(vfiler, context, view)
+                            action.close_tree_or_cd(vfiler, context, view)
                         else
-                            vfiler_action.open_tree(vfiler, context, view)
+                            action.open_tree(vfiler, context, view)
                             -- 開いたツリーの中にカーソルが移動するので元に戻す
-                            vfiler_action.move_cursor_up(vfiler, context, view)
+                            action.move_cursor_up(vfiler, context, view)
                         end
                     else
-                        vfiler_action.open_by_vsplit(vfiler, context, view)
+                        action.open_by_vsplit(vfiler, context, view)
                     end
                 end,
                 ["O"] = function(vfiler, context, view)
                     local item = view:get_item()
                     if item.type == "directory" then
                         if item.opened == true then
-                            vfiler_action.close_tree_or_cd(vfiler, context, view)
+                            action.close_tree_or_cd(vfiler, context, view)
                         else
-                            vfiler_action.open_tree_recursive(vfiler, context, view)
+                            action.open_tree_recursive(vfiler, context, view)
                             -- 開いたツリーの中にカーソルが移動するので元に戻す
-                            vfiler_action.move_cursor_up(vfiler, context, view)
+                            action.move_cursor_up(vfiler, context, view)
                         end
                     else
-                        vfiler_action.open_by_tabpage(vfiler, context, view)
+                        action.open_by_tabpage(vfiler, context, view)
                     end
                 end,
+                ["p"] = action.toggle_preview,
+                ["P"] = action.paste,
+                ["r"] = action.rename,
+                ["s"] = action.open_by_split,
+                ["S"] = action.change_sort,
+                ["u"] = function(vfiler, context, view)
+                    action.move_cursor_top_sibling(vfiler, context, view)
+                    action.move_cursor_up(vfiler, context, view)
+                end,
+                ["U"] = action.clear_selected_all,
+                ["V"] = function(vfiler, context, view)
+                    local current = vim.fn.line(".")
+                    local current_selected = view:get_item(current).selected
+                    local top_lnum = view:top_lnum()
+                    for line = current, top_lnum, -1 do
+                        local item = view:get_item(line)
+                        if item.selected ~= current_selected then
+                            break
+                        end
+                        item.selected = not current_selected
+                    end
+                    view:redraw()
+                    action.move_cursor_down(vfiler, context, view)
+                end,
+                ["x"] = action.execute_file,
                 ["X"] = function(vfiler, context, view)
                     if vim.fn.executable("unar") then
                         local selected_items = view:selected_items()
@@ -128,9 +162,10 @@ return {
                             end
                         end
                     end
-                    vfiler_action.clear_selected_all(vfiler, context, view)
-                    vfiler_action.reload(vfiler, context, view)
+                    action.clear_selected_all(vfiler, context, view)
+                    action.reload(vfiler, context, view)
                 end,
+                ["yy"] = action.yank_path,
                 ["yp"] = function(_, _, view)
                     local item = view:get_item()
                     if item.parent then
@@ -139,48 +174,38 @@ return {
                         print(([[Yanked path - "%s"]]):format(item.parent.path))
                     end
                 end,
-                ["<C-d>"] = function(vfiler, context, view)
+                ["YY"] = action.yank_name,
+                ["<C-b>"] = function(vfiler, context, view)
                     if context.in_preview.preview then
-                        vfiler_action.scroll_down_preview(vfiler, context, view)
+                        action.scroll_up_preview(vfiler, context, view)
                     else
-                        vim.cmd("normal! \x04")
+                        vim.cmd("normal! \x02")
+                    end
+                end,
+                ["<C-f>"] = function(vfiler, context, view)
+                    if context.in_preview.preview then
+                        action.scroll_down_preview(vfiler, context, view)
+                    else
+                        vim.cmd("normal! \x06")
                     end
                 end,
                 ["<C-g>"] = function(_, _, view)
                     local item = view:get_item()
                     print(item.path)
                 end,
-                ["<C-h>"] = vfiler_action.change_to_parent,
-                ["<C-j>"] = vfiler_action.jump_to_history_directory,
-                ["<C-l>"] = vfiler_action.reload_all_dir,
-                ["<C-o>"] = function(vfiler, context, view)
-                    local history = context:directory_history()
-                    if #history == 0 then
-                        return
-                    end
-                    local utilities = require("vfiler/actions/utilities")
-                    utilities.cd(vfiler, context, view, history[1])
+                ["<C-h>"] = action.change_to_parent,
+                ["<C-l>"] = action.reload_all_dir,
+                ["<C-o>"] = action.jump_to_history_directory,
+                ["<C-r>"] = action.sync_with_current_filer,
+                ["<Tab>"] = action.switch_to_filer,
+                ["<CR>"] = action.open,
+                ["<S-Space>"] = function(vfiler, context, view)
+                    action.toggle_select(vfiler, context, view)
+                    action.move_cursor_up(vfiler, context, view)
                 end,
-                ["<C-r>"] = function(vfiler, context, view)
-                    local linked = context.linked
-                    if not (linked and linked:visible()) then
-                        return
-                    end
-
-                    local item = view:get_item()
-                    local path = vim.fn.fnamemodify(item.path, ":p:h")
-                    local utilities = require("vfiler/actions/utilities")
-                    linked:focus()
-                    linked:update(context)
-                    linked:do_action(utilities.cd, path)
-                    vfiler:focus() -- return current window
-                end,
-                ["<C-u>"] = function(vfiler, context, view)
-                    if context.in_preview.preview then
-                        vfiler_action.scroll_up_preview(vfiler, context, view)
-                    else
-                        vim.cmd("normal! \x15")
-                    end
+                ["<Space>"] = function(vfiler, context, view)
+                    action.toggle_select(vfiler, context, view)
+                    action.move_cursor_down(vfiler, context, view)
                 end,
             },
         })
@@ -189,29 +214,18 @@ return {
                 read_preview_file = require("read_preview_file"),
             },
         })
-        local menu_action = require("vfiler/extensions/menu/action")
         require("vfiler/extensions/menu/config").setup({
             options = {
                 floating = {
                     minwidth = 100,
                 },
             },
-            mappings = {
-                ["<C-p>"] = menu_action.loop_cursor_up,
-                ["<C-n>"] = menu_action.loop_cursor_down,
-            },
         })
-        local bookmark_action = require("vfiler/extensions/bookmark/action")
         require("vfiler/extensions/bookmark/config").setup({
             options = {
                 floating = {
                     minwidth = 100,
                 },
-            },
-            mappings = {
-                ["o"] = bookmark_action.open_tree,
-                ["<C-p>"] = bookmark_action.smart_cursor_up,
-                ["<C-n>"] = bookmark_action.smart_cursor_down,
             },
         })
         local keymap_opts = { noremap = true, silent = true }
@@ -229,29 +243,5 @@ return {
             "-columns=indent,icon,name,git",
         }, " ")
         vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd .. "<CR>", keymap_opts)
-        local group = vim.api.nvim_create_augroup("vimrc-vfiler-settings", { clear = true })
-        vim.api.nvim_create_autocmd("FileType", {
-            group = group,
-            pattern = { "vfiler" },
-            callback = function()
-                vim.keymap.set("x", "<Space>", function()
-                    local first = vim.fn.line("v")
-                    local last = vim.fn.line(".")
-                    if first > last then
-                        first, last = last, first
-                    end
-                    local view = require("vfiler/vfiler").get(vim.fn.bufnr("%"))._view
-                    first = math.max(first, view:top_lnum())
-                    for i = first, last do
-                        local item = view:get_item(i)
-                        if item then
-                            item.selected = not item.selected
-                        end
-                    end
-                    view:redraw()
-                    vim.cmd("normal! " .. vim.api.nvim_replace_termcodes("<Esc>", true, true, true))
-                end, { buffer = true })
-            end,
-        })
     end,
 }

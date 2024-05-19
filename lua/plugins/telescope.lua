@@ -20,15 +20,11 @@ local function set_lsp_keymap(ev)
     vim.keymap.set("n", "gls", function()
         builtin.lsp_document_symbols({ symbols = symbols })
     end, opts)
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
     vim.keymap.set("n", "glf", function()
         vim.lsp.buf.format({ timeout_ms = 10000 })
     end, opts)
     vim.keymap.set("n", "gln", vim.lsp.buf.rename, opts)
     vim.keymap.set("n", "gla", vim.lsp.buf.code_action, opts)
-    vim.keymap.set("n", "ge", vim.diagnostic.open_float, opts)
-    vim.keymap.set("n", "g]", vim.diagnostic.goto_next, opts)
-    vim.keymap.set("n", "g[", vim.diagnostic.goto_prev, opts)
 end
 
 return {
