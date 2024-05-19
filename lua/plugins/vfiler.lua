@@ -42,6 +42,19 @@ return {
                 ["gp"] = action.toggle_auto_preview,
                 ["gs"] = action.toggle_sort,
                 ["g/"] = action.jump_to_root,
+                ["g<Space>"] = function(_, _, view)
+                    local current = vim.fn.line(".")
+                    local current_selected = view:get_item(current).selected
+                    local top_lnum = view:top_lnum()
+                    for line = current, top_lnum, -1 do
+                        local item = view:get_item(line)
+                        if item.selected ~= current_selected then
+                            break
+                        end
+                        item.selected = not current_selected
+                    end
+                    view:redraw()
+                end,
                 -- ['G'] = vfiler_action.move_cursor_bottom,
                 ["h"] = action.close_tree_or_cd,
                 ["ip"] = function(vfiler, context, view)
@@ -120,20 +133,6 @@ return {
                     action.move_cursor_up(vfiler, context, view)
                 end,
                 ["U"] = action.clear_selected_all,
-                ["V"] = function(vfiler, context, view)
-                    local current = vim.fn.line(".")
-                    local current_selected = view:get_item(current).selected
-                    local top_lnum = view:top_lnum()
-                    for line = current, top_lnum, -1 do
-                        local item = view:get_item(line)
-                        if item.selected ~= current_selected then
-                            break
-                        end
-                        item.selected = not current_selected
-                    end
-                    view:redraw()
-                    action.move_cursor_down(vfiler, context, view)
-                end,
                 ["x"] = action.execute_file,
                 ["X"] = function(vfiler, context, view)
                     if vim.fn.executable("unar") then
@@ -176,14 +175,16 @@ return {
                 end,
                 ["YY"] = action.yank_name,
                 ["<C-b>"] = function(vfiler, context, view)
-                    if context.in_preview.preview then
+                    local preview = context.in_preview.preview
+                    if preview and preview.opened then
                         action.scroll_up_preview(vfiler, context, view)
                     else
                         vim.cmd("normal! \x02")
                     end
                 end,
                 ["<C-f>"] = function(vfiler, context, view)
-                    if context.in_preview.preview then
+                    local preview = context.in_preview.preview
+                    if preview and preview.opened then
                         action.scroll_down_preview(vfiler, context, view)
                     else
                         vim.cmd("normal! \x06")
