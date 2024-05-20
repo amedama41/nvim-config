@@ -72,25 +72,6 @@ return {
                 end,
                 ["I"] = action.jump_to_directory,
                 ["j"] = action.move_cursor_down,
-                ["J"] = function(vfiler, context, view)
-                    local selected_items = view:selected_items()
-                    ---@type string?
-                    local args = ""
-                    for _, item in pairs(selected_items) do
-                        if item.selected then
-                            args = args .. " " .. vim.fn.shellescape(item.path)
-                        end
-                    end
-                    action.clear_selected_all(vfiler, context, view)
-                    if args == "" then
-                        args = nil
-                    end
-                    require("lazy").load({
-                        plugins = "scallop.nvim",
-                        wait = true,
-                    })
-                    require("scallop").open_edit(args, context.root.path)
-                end,
                 ["k"] = action.move_cursor_up,
                 ["l"] = action.open,
                 ["mm"] = action.move_to_filer,
@@ -195,6 +176,25 @@ return {
                     print(item.path)
                 end,
                 ["<C-h>"] = action.change_to_parent,
+                ["<C-k>"] = function(vfiler, context, view)
+                    local selected_items = view:selected_items()
+                    ---@type string?
+                    local args = ""
+                    for _, item in pairs(selected_items) do
+                        if item.selected then
+                            args = args .. " " .. vim.fn.shellescape(item.path)
+                        end
+                    end
+                    action.clear_selected_all(vfiler, context, view)
+                    if args == "" then
+                        args = nil
+                    end
+                    require("lazy").load({
+                        plugins = "scallop.nvim",
+                        wait = true,
+                    })
+                    require("scallop").open_edit(args, context.root.path)
+                end,
                 ["<C-l>"] = action.reload_all_dir,
                 ["<C-o>"] = action.jump_to_history_directory,
                 ["<C-r>"] = action.sync_with_current_filer,

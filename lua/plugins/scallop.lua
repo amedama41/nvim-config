@@ -35,7 +35,7 @@ return {
             },
         })
         vim.keymap.set("n", "<C-k>", function()
-            require("scallop").open_edit()
+            require("scallop").open_edit(nil, vim.fn.getcwd())
         end, { noremap = true, silent = true })
         vim.keymap.set("n", "g<C-k>", function()
             require("scallop").open_terminal()
@@ -121,7 +121,9 @@ return {
             },
         })
 
+        local augroup = vim.api.nvim_create_augroup("vimrc-scallop-settings", { clear = true })
         vim.api.nvim_create_autocmd("FileType", {
+            group = augroup,
             pattern = { "scallop" },
             callback = function()
                 vim.keymap.set("n", "a", function()
@@ -148,6 +150,7 @@ return {
             end,
         })
         vim.api.nvim_create_autocmd("FileType", {
+            group = augroup,
             pattern = { "bash.scallopedit" },
             callback = function()
                 vim.lsp.start({
@@ -160,6 +163,9 @@ return {
                 -- This mapping is needed for <C-g><C-c> mapping
                 vim.keymap.set("n", "<C-c>", function()
                     require("scallop").close_edit()
+                end, { buffer = true })
+                vim.keymap.set("i", "<C-c>", function()
+                    require("scallop").close_terminal()
                 end, { buffer = true })
                 vim.keymap.set({ "n" }, "<C-^>", function()
                     require("scallop").switch_terminal()
@@ -186,6 +192,15 @@ return {
                         return
                     end
                     require("scallop").send_to_terminal(char)
+                end, { buffer = true })
+                vim.keymap.set("i", "<C-x><C-o>", function()
+                    cmp.complete({
+                        config = {
+                            sources = {
+                                { name = "nvim_lsp" },
+                            },
+                        },
+                    })
                 end, { buffer = true })
             end,
         })
