@@ -158,6 +158,10 @@ return {
                     -- cmd = { "/Users/Macbook/repos/bash-language-server/server/out/cli.js", "start" },
                     cmd = { "bash-language-server-mod", "start" },
                     root_dir = nil,
+                }, {
+                    reuse_client = function()
+                        return true
+                    end,
                 })
 
                 -- This mapping is needed for <C-g><C-c> mapping
