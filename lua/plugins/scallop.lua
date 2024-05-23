@@ -159,8 +159,8 @@ return {
                     cmd = { "bash-language-server-mod", "start" },
                     root_dir = nil,
                 }, {
-                    reuse_client = function()
-                        return true
+                    reuse_client = function(client, config)
+                        return client.name == config.name
                     end,
                 })
 
