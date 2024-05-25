@@ -70,12 +70,42 @@ return {
                     end
                     action.clear_selected_all(vfiler, context, view)
                 end,
+                ["ix"] = action.execute_file,
+                ["iX"] = function(vfiler, context, view)
+                    if vim.fn.executable("unar") then
+                        local selected_items = view:selected_items()
+                        local jobids = {}
+                        local run_items = {}
+                        for _, item in pairs(selected_items) do
+                            local jobid = vim.fn.jobstart({ "unar", item.path }, {
+                                clear_env = true,
+                                cwd = vim.fn.fnamemodify(item.path, ":h"),
+                                detach = true,
+                                pty = false,
+                                stdin = nil,
+                            })
+                            if jobid > 0 then
+                                table.insert(jobids, jobid)
+                                table.insert(run_items, item.path)
+                            else
+                                vim.print(([[failed to run unar for "%s"]]):format(item.path))
+                            end
+                        end
+                        local exitcodes = vim.fn.jobwait(jobids, 500)
+                        for i, exitcode in pairs(exitcodes) do
+                            if exitcode > 0 then
+                                vim.print(([[failed to unar for "%s" (%d)]]):format(run_items[i], exitcode))
+                            end
+                        end
+                    end
+                    action.clear_selected_all(vfiler, context, view)
+                    action.reload(vfiler, context, view)
+                end,
                 ["I"] = action.jump_to_directory,
                 ["j"] = action.move_cursor_down,
+                ["J"] = action.jump_to_directory,
                 ["k"] = action.move_cursor_up,
                 ["l"] = action.open,
-                ["mm"] = action.move_to_filer,
-                -- ["M"] = vfiler_action.move,
                 ["o"] = function(vfiler, context, view)
                     local item = view:get_item()
                     if item.type == "directory" then
@@ -114,37 +144,8 @@ return {
                     action.move_cursor_up(vfiler, context, view)
                 end,
                 ["U"] = action.clear_selected_all,
-                ["x"] = action.execute_file,
-                ["X"] = function(vfiler, context, view)
-                    if vim.fn.executable("unar") then
-                        local selected_items = view:selected_items()
-                        local jobids = {}
-                        local run_items = {}
-                        for _, item in pairs(selected_items) do
-                            local jobid = vim.fn.jobstart({ "unar", item.path }, {
-                                clear_env = true,
-                                cwd = vim.fn.fnamemodify(item.path, ":h"),
-                                detach = true,
-                                pty = false,
-                                stdin = nil,
-                            })
-                            if jobid > 0 then
-                                table.insert(jobids, jobid)
-                                table.insert(run_items, item.path)
-                            else
-                                vim.print(([[failed to run unar for "%s"]]):format(item.path))
-                            end
-                        end
-                        local exitcodes = vim.fn.jobwait(jobids, 500)
-                        for i, exitcode in pairs(exitcodes) do
-                            if exitcode > 0 then
-                                vim.print(([[failed to unar for "%s" (%d)]]):format(run_items[i], exitcode))
-                            end
-                        end
-                    end
-                    action.clear_selected_all(vfiler, context, view)
-                    action.reload(vfiler, context, view)
-                end,
+                ["xx"] = action.move_to_filer,
+                ["X"] = action.move,
                 ["yy"] = action.yank_path,
                 ["yp"] = function(_, _, view)
                     local item = view:get_item()
@@ -176,6 +177,7 @@ return {
                     print(item.path)
                 end,
                 ["<C-h>"] = action.change_to_parent,
+                ["<C-j>"] = action.jump_to_history_directory,
                 ["<C-k>"] = function(vfiler, context, view)
                     local selected_items = view:selected_items()
                     ---@type string?
@@ -196,7 +198,7 @@ return {
                     require("scallop").open_edit(args, context.root.path)
                 end,
                 ["<C-l>"] = action.reload_all_dir,
-                ["<C-o>"] = action.jump_to_history_directory,
+                ["<C-o>"] = function() end,
                 ["<C-r>"] = action.sync_with_current_filer,
                 ["<Tab>"] = action.switch_to_filer,
                 ["<CR>"] = action.open,

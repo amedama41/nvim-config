@@ -83,24 +83,11 @@ local function read_preview_file(path, default_read_file_func)
     if subtype == "json" then
         return default_read_file_func(path)
     end
-    if subtype == "zip" then
-        local _, lines = sync_jobstart({ "unzip", "-l", path }, 1000)
+    if vim.list_contains({ "zip", "gzip", "x-rar", "x-bzip2" }, subtype) then
+        local _, lines = sync_jobstart({ "lsar", "-l", path }, 1000)
         return lines, ""
     end
-    if subtype == "gzip" then
-        local exitcode, lines = sync_jobstart({ "tar", "tzf", path }, 1000)
-        if exitcode == 0 then
-            return lines, "tar"
-        end
-
-        local _, gunzip_lines = sync_jobstart({ "gunzip", "-l", path }, 1000)
-        return gunzip_lines, ""
-    end
-    if subtype == "x-rar" then
-        local _, lines = sync_jobstart({ "unrar", "ltabp", path }, 1000)
-        return lines, ""
-    end
-    local _, lines = sync_jobstart({ "xxd", path }, 1000)
+    local _, lines = sync_jobstart({ "xxd", "-l", "4096", path }, 1000)
     return lines, ""
 end
 
