@@ -1,5 +1,7 @@
 return {
-    "pwntester/octo.nvim",
+    -- "pwntester/octo.nvim",
+    "amedama41/octo.nvim",
+    branch = "issue/fix_large_pr_diff",
     cmd = { "Octo" },
     dependencies = {
         "nvim-lua/plenary.nvim",
@@ -38,6 +40,19 @@ return {
                 reload = { lhs = "g<C-l>", desc = "reload PR" },
                 open_in_browser = { lhs = "gK", desc = "open PR in browser" },
                 copy_url = { lhs = "gY", desc = "copy url to system clipboard" },
+            },
+            review_thread = {
+                select_next_entry = { lhs = "<Tab>", desc = "move to previous changed file" },
+                select_prev_entry = { lhs = "<S-Tab>", desc = "move to next changed file" },
+            },
+            review_diff = {
+                select_next_entry = { lhs = "<Tab>", desc = "move to previous changed file" },
+                select_prev_entry = { lhs = "<S-Tab>", desc = "move to next changed file" },
+            },
+            file_panel = {
+                refresh_files = { lhs = "<C-l>", desc = "refresh changed files panel" },
+                select_next_entry = { lhs = "<Tab>", desc = "move to previous changed file" },
+                select_prev_entry = { lhs = "<S-Tab>", desc = "move to next changed file" },
             },
         },
     },

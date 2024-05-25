@@ -13,7 +13,7 @@ return {
         },
         {
             "creativenull/efmls-configs-nvim",
-            tag = "v1.*",
+            tag = "v1.7.0",
             dependencies = "neovim/nvim-lspconfig",
         },
     },
