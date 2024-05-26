@@ -102,9 +102,9 @@ return {
                     action.reload(vfiler, context, view)
                 end,
                 ["I"] = action.jump_to_directory,
-                ["j"] = action.move_cursor_down,
+                -- ["j"] = action.move_cursor_down,
                 ["J"] = action.jump_to_directory,
-                ["k"] = action.move_cursor_up,
+                -- ["k"] = action.move_cursor_up,
                 ["l"] = action.open,
                 ["o"] = function(vfiler, context, view)
                     local item = view:get_item()

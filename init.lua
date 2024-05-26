@@ -120,9 +120,10 @@ vim.api.nvim_create_autocmd("TabClosed", {
 })
 vim.api.nvim_create_autocmd("FileType", {
     group = vimrc_settings_group,
-    pattern = {"rst", "gitcommit"},
+    pattern = {"rst", "gitcommit", "markdown", "octo"},
     callback = function()
         vim.opt_local.spell = true
+        vim.opt_local.concealcursor = "n"
     end
 })
 if vim.fn.executable("im-select") then

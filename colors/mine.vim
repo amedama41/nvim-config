@@ -11,7 +11,7 @@ endif
 let colors_name = "mine"
 :hi Normal guifg=White ctermfg=White guibg=none
 " :hi Cursor guibg=khaki guifg=slategrey
-:hi CursorLine gui=underline guibg=none cterm=underline
+:hi CursorLine gui=underline guibg=none guisp=darkyellow cterm=underline
 " :hi VertSplit guibg=#c2bfa5 guifg=grey40 gui=none cterm=reverse
 :hi Folded guibg=grey guifg=darkgrey ctermfg=grey ctermbg=darkgrey
 :hi FoldColumn guibg=#6c6c6c guifg=#00ffff ctermfg=14 ctermbg=242
@@ -51,11 +51,11 @@ let colors_name = "mine"
 " :hi ErrorMsg cterm=bold guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
 " :hi VisualNOS cterm=bold,underline
 :hi WildMenu guifg=white guibg=#c91b00 ctermfg=White ctermbg=DarkRed
-:hi DiffAdd ctermbg=4 guibg=DarkBlue guifg=none
+:hi DiffAdd ctermbg=4 guibg=#205a20 guifg=none
 :hi DiffChange term=bold guibg=black guifg=none ctermbg=16 " grey0
 :hi DiffDelete cterm=bold ctermfg=4 ctermbg=6 guibg=darkcyan
 " :hi DiffText cterm=bold ctermbg=1 guibg=#5f0000 guifg=none
-:hi DiffText term=reverse gui=bold guibg=#5f0000 cterm=bold ctermbg=52 " DarkRed
+:hi DiffText term=reverse gui=none guifg=none guibg=#5f0000 cterm=bold ctermbg=52 " DarkRed
 :hi diffAdded guifg=#5ff967 ctermfg=10
 :hi diffRemoved guifg=#ff6d67 ctermfg=9
 :hi Underlined gui=underline guifg=purple cterm=underline ctermfg=5
@@ -67,8 +67,6 @@ let colors_name = "mine"
 :hi SpellLocal guibg=#5ffdff ctermbg=14
 :hi NormalFloat guifg=White guibg=Black ctermfg=White ctermbg=Black
 :hi FloatBorder guibg=black ctermbg=black
-:hi TelescopeNormal guibg=black ctermbg=black
-:hi TelescopeBorder guibg=black ctermbg=black
 :hi DiagnosticError guifg=#ff5f5f ctermfg=203 " indianred1
 :hi DiagnosticWarn guifg=#ffd75f ctermfg=221 " lightgoldrod2
 :hi DiagnosticInfo guifg=#afafff ctermfg=147 " lightsteelblud
