@@ -50,7 +50,7 @@ return {
             },
         })
         vim.keymap.set("n", "<C-k>", function()
-            require("scallop").open_edit(nil, vim.fn.getcwd())
+            require("scallop").open_edit(nil, vim.fn.getcwd(), true)
         end, { noremap = true, silent = true })
         vim.keymap.set("n", "g<C-k>", function()
             require("scallop").open_terminal()
