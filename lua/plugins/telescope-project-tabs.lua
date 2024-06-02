@@ -2,14 +2,7 @@ return {
     "amedama41/telescope-project-tabs.nvim",
     keys = { "<C-\\>p", "<C-\\>P" },
     dependencies = "nvim-telescope/telescope.nvim",
-    opts = {
-        root_dirs = {
-            "~/.local/share/nvim/lazy",
-            "~/repos",
-            "~/work",
-        },
-        max_depth = 3,
-    },
+    opts = require("env").project_tabs_config,
     config = function(_, opts)
         local project_tabs = require("telescope-project-tabs")
 

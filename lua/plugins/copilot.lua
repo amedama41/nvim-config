@@ -1,7 +1,6 @@
 return {
     "github/copilot.vim",
-    enabled = false,
-    event = "InsertEnter",
+    enabled = require("env").enable_copilot,
     init = function()
         vim.g.copilot_filetypes = {
             gitcommit = true,
