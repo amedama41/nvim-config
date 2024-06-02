@@ -13,7 +13,7 @@ return {
             if vim.fn["vsnip#jumpable"](-1) == 1 then
                 return "<Plug>(vsnip-jump-prev)"
             else
-                return "<C-i>"
+                return "<S-C-i>"
             end
         end, { expr = true })
     end,

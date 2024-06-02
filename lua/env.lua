@@ -6,7 +6,7 @@ return {
     },
     enable_copilot = false,
     project_tabs_config = {
-        root_dir = {
+        root_dirs = {
             "~/.local/share/nvim/lazy",
             "~/repos",
             "~/work",
