@@ -1,7 +1,7 @@
 return {
     -- "pwntester/octo.nvim",
     "amedama41/octo.nvim",
-    branch = "issue/fix_large_pr_diff",
+    branch = "septem",
     cmd = { "Octo" },
     dependencies = {
         "nvim-lua/plenary.nvim",

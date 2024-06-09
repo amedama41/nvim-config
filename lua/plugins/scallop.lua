@@ -186,7 +186,7 @@ return {
             },
             sources = {
                 { name = "nvim_lsp" },
-                { name = "scallop_shell_history", entry_filter = history_filter, max_item_count = 50 },
+                { name = "scallop_shell_history", entry_filter = history_filter, max_item_count = 100 },
                 {
                     name = "path",
                     option = {
