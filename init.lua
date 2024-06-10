@@ -136,8 +136,8 @@ if vim.fn.executable("im-select") then
     })
 end
 if vim.fn.executable("gh") then
-    vim.api.nvim_create_user_command("GhBrowse", function(args)
-        local file = vim.fn.shellescape(vim.fn.bufname("%"))
+    vim.api.nvim_create_user_command("GhBrowseURL", function(args)
+        local file = vim.fn.bufname("%")
         if args.range == 2 then
             if args.line1 ~= args.line2 then
                 file = file .. (":%d-%d"):format(args.line1, args.line2)
@@ -145,8 +145,25 @@ if vim.fn.executable("gh") then
                 file = file .. (":%d"):format(args.line1)
             end
         end
-        local command = ("gh browse -c %s"):format(file)
-        vim.fn.system(command)
+        local result = vim.system({ "gh", "browse", "--no-browser", "-c", file }, { text = true }):wait()
+        if result.code == 0 then
+            local url = vim.trim(result.stdout)
+            vim.print("yank: " .. url)
+            vim.fn.setreg("+", url, "")
+        else
+            vim.print(vim.trim(result.stderr))
+        end
+    end, { range = true, force = true })
+    vim.api.nvim_create_user_command("GhBrowse", function(args)
+        local file = vim.fn.bufname("%")
+        if args.range == 2 then
+            if args.line1 ~= args.line2 then
+                file = file .. (":%d-%d"):format(args.line1, args.line2)
+            else
+                file = file .. (":%d"):format(args.line1)
+            end
+        end
+        vim.system({ "gh", "browse", "-c", file }, {}):wait()
     end, { range = true, force = true })
 end
 
