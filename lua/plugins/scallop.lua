@@ -97,6 +97,9 @@ return {
                 vim.keymap.set({ "n", "i" }, "<C-g><C-y>", function()
                     require("scallop").yank_from_prompt(false)
                 end, { buffer = true })
+                vim.keymap.set("l", "<C-g><C-[>", function()
+                    vim.cmd [[stopinsert]]
+                end, { buffer = true })
                 vim.keymap.set({ "i", "l" }, "<C-g><C-^>", "<Plug>(ScallopSwitchDirectMode)", { buffer = true })
                 vim.keymap.set({ "n", "i" }, "<C-g>", function()
                     local ok, char = pcall(vim.fn.getcharstr, 0)
