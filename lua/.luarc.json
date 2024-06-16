@@ -1,5 +1,3 @@
 {
-    "diagnostics.globals": [
-        "vim"
-    ]
+    "workspace.library": ["$VIMRUNTIME/lua"]
 }

@@ -71,6 +71,9 @@ vim.opt.swapfile = false    -- swapファイルを非作成
 vim.opt.tags:append({"~/.tags"})   -- ctagsファイルディレクトリの指定
 vim.opt.tagbsearch = false  -- タグを二分探索しない
 
+--- ターミナルのスクロールバッファ
+vim.opt.scrollback = 100000
+
 local keymap_opt = { noremap = true, silent = true }
 vim.keymap.set({"n", "x", "o"}, "j", "gj", keymap_opt)
 vim.keymap.set({"n", "x", "o"}, "k", "gk", keymap_opt)
@@ -96,15 +99,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         if vim.opt.fileencoding:get() == "iso-2022-jp"
             and vim.fn.search("[^\x01-\x7e]", "n") == 0 then
             vim.opt.fileencoding = vim.opt.encoding:get()
-        end
-    end
-})
-vim.api.nvim_create_autocmd("TermOpen", {
-    group = vimrc_settings_group,
-    pattern = "*",
-    callback = function()
-        if vim.opt.buftype:get() == "terminal" then
-            vim.opt_local.scrollback = 100000
         end
     end
 })
@@ -194,7 +188,7 @@ vim.api.nvim_create_user_command("GitEdit", function(info)
             height = vim.o.lines - 26,
             border = "rounded",
         })
-        vim.fn.win_execute(winid, 'stopinsert', 'silent')
+        vim.fn.win_execute(winid, 'stopinsert', true)
 
         vim.bo[bufnr].bufhidden = "delete"
         vim.bo[bufnr].buflisted = true

@@ -70,6 +70,7 @@ return {
                     reuse_client = function(client, config)
                         return client.name == config.name
                     end,
+                    bufnr = 0,
                 })
 
                 vim.keymap.set("n", "<C-[>", function()

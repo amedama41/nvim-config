@@ -1,6 +1,7 @@
 return {
     "hrsh7th/cmp-nvim-lua",
     ft = "lua",
+    enabled = false,
     dependencies = {
         "hrsh7th/nvim-cmp",
         "hrsh7th/cmp-nvim-lsp",
