@@ -50,7 +50,10 @@ return {
             },
         })
         vim.keymap.set("n", "<C-k>", function()
-            require("scallop").open_edit(nil, vim.fn.getcwd(), true)
+            require("scallop").open_edit(nil)
+        end, { noremap = true, silent = true })
+        vim.keymap.set("n", "<C-S-k>", function()
+            require("scallop").open_edit(nil, vim.fn.getcwd())
         end, { noremap = true, silent = true })
         vim.keymap.set("n", "g<C-k>", function()
             require("scallop").open_terminal()
@@ -75,6 +78,9 @@ return {
 
                 vim.keymap.set("n", "<C-[>", function()
                     require("scallop").close_edit()
+                end, { buffer = true })
+                vim.keymap.set("i", "<C-;>", function()
+                    require("scallop").toggle_secret_mode()
                 end, { buffer = true })
                 -- This mapping is needed for <C-g><C-c> mapping
                 vim.keymap.set("n", "<C-c>", function()
@@ -128,9 +134,6 @@ return {
         local history_filter = function(entry, _)
             local text = entry:get_insert_text()
             if pattern:match_str(text) == nil then
-                return false
-            end
-            if vim.startswith(text, "ghp_") then
                 return false
             end
             return true
