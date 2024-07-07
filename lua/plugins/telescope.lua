@@ -103,13 +103,13 @@ return {
             pickers = {
                 grep_string = { word_match = "-s" },
                 git_commits = {
-                    git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short", "--", "." },
+                    git_command = { "git", "log", "--pretty=tformat:%h %ad %<(16,trunc)%an %s", "--date=short", "--", "." },
                 },
                 git_bcommits = {
-                    git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short" },
+                    git_command = { "git", "log", "--pretty=tformat:%h %ad %<(16,trunc)%an %s", "--date=short" },
                 },
                 git_bcommits_range = {
-                    git_command = { "git", "log", "--pretty=tformat:%h %ad %s", "--date=short", "--no-patch", "-L" },
+                    git_command = { "git", "log", "--pretty=tformat:%h %ad %<(16,trunc)%an %s", "--date=short", "--no-patch", "-L" },
                 },
                 oldfiles = { only_cwd = true },
                 buffers = {

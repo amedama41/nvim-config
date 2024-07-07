@@ -37,7 +37,6 @@ return {
                 ["dd"] = action.delete,
                 ["gb"] = action.list_bookmark,
                 ["gB"] = action.add_bookmark,
-                ["gg"] = action.move_cursor_top,
                 ["gl"] = action.switch_to_drive,
                 ["gp"] = action.toggle_auto_preview,
                 ["gs"] = action.toggle_sort,

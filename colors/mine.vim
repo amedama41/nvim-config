@@ -21,13 +21,13 @@ let colors_name = "mine"
 " :hi MoreMsg guifg=SeaGreen ctermfg=darkgreen
 :hi NonText guifg=darkgray ctermfg=darkgray
 " :hi Question guifg=springgreen ctermfg=green
-:hi Search guibg=darkyellow guifg=black cterm=none ctermfg=grey ctermbg=blue
+:hi Search guibg=darkyellow cterm=none ctermfg=grey ctermbg=blue
 :hi SpecialKey guifg=darkgray ctermfg=darkgray
 :hi StatusLine guifg=black guibg=yellow gui=bold cterm=bold,reverse ctermfg=yellow
 :hi StatusLineNC gui=reverse cterm=reverse
 :hi Title guifg=#FFFF55 gui=bold cterm=bold ctermfg=yellow
 :hi Statement guifg=#FFFF55 gui=bold ctermfg=yellow cterm=bold
-:hi Visual guibg=darkyellow ctermbg=darkyellow term=reverse
+:hi Visual guibg=#008080 ctermbg=darkyellow term=reverse
 :hi WarningMsg guifg=#ffd7d7 ctermfg=224
 :hi! link String Constant
 :hi Comment term=bold ctermfg=darkgray guifg=darkgray
