@@ -19,3 +19,9 @@
 :hi OctoThreadPanelFloat guibg=#444444
 :hi OctoThreadPanelFloatBoarder guibg=#444444
 :hi OctoThreadPanelSignColumn guibg=#444444
+" :hi OctoCommentHeader.Review guibg=NvimDarkBlue gui=bold
+" :hi OctoCommentHeader.Thread guibg=white gui=bold
+" :hi OctoCommentHeader.Comment guibg=NvimDarkBlue gui=none
+" :hi OctoCommentHeader.ThreadComment guibg=darkgray
+:hi OctoCommentBlock.ThreadComment guibg=#222222
+:hi OctoCommentBlock.Comment guibg=#222222

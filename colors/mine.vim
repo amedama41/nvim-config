@@ -53,7 +53,7 @@ let colors_name = "mine"
 :hi WildMenu guifg=white guibg=#c91b00 ctermfg=White ctermbg=DarkRed
 :hi DiffAdd ctermbg=4 guibg=#205a20 guifg=none
 :hi DiffChange term=bold guibg=black guifg=none ctermbg=16 " grey0
-:hi DiffDelete cterm=bold ctermfg=4 ctermbg=6 guibg=darkcyan
+:hi DiffDelete cterm=bold ctermfg=4 ctermbg=6 guibg=darkred
 " :hi DiffText cterm=bold ctermbg=1 guibg=#5f0000 guifg=none
 :hi DiffText term=reverse gui=none guifg=none guibg=#5f0000 cterm=bold ctermbg=52 " DarkRed
 :hi diffAdded guifg=#5ff967 ctermfg=10

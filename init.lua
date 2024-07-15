@@ -59,8 +59,9 @@ vim.opt.hlsearch = true -- 検索結果のハイライト
 vim.opt.wrapscan = true -- 検索時の最初と最後のループ
 
 -- 折り畳み設定
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+--vim.opt.foldmethod = "expr"
+--vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldmethod = "indent"
 vim.opt.foldlevel = 10
 
 -- バックアップファイル・Swapファイル設定

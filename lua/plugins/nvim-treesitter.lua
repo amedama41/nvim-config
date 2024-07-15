@@ -12,42 +12,73 @@ return {
                 enable = true,
                 lookahead = true,
                 keymaps = {
+                    ["ab"] = "@block.outer",
+                    ["ib"] = "@block.inner",
                     ["af"] = "@function.outer",
                     ["if"] = "@function.inner",
-                    ["ac"] = "@class.outer",
-                    ["ic"] = "@class.inner",
+                    ["ai"] = "@conditional.outer",
+                    ["ii"] = "@conditional.inner",
                     ["al"] = "@loop.outer",
                     ["il"] = "@loop.inner",
+                    ["at"] = "@class.outer",
+                    ["it"] = "@class.inner",
                 },
                 selection_modes = {
+                    ["@block.outer"] = "V",
+                    ["@block.inner"] = "V",
                     ["@function.outer"] = "V",
                     ["@function.inner"] = "V",
+                    ["@conditional.outer"] = "V",
+                    ["@conditional.inner"] = "V",
+                    ["@loop.outer"] = "V",
+                    ["@loop.inner"] = "V",
                     ["@class.outer"] = "V",
                     ["@class.inner"] = "V",
                 },
             },
             move = {
                 enable = true,
+                disable = function(lang, bufnr)
+                    local keymap_opts = { buffer = bufnr, noremap = true }
+                    local ts_repeat_move = require "nvim-treesitter.textobjects.repeatable_move"
+                    vim.keymap.set({"n", "x", "o"}, "]]", ts_repeat_move.repeat_last_move_next, keymap_opts)
+                    vim.keymap.set({"n", "x", "o"}, "][", function()
+                        ts_repeat_move.repeat_last_move({ forward = true, start = false })
+                    end, keymap_opts)
+                    vim.keymap.set({"n", "x", "o"}, "[[", ts_repeat_move.repeat_last_move_previous, keymap_opts)
+                    vim.keymap.set({"n", "x", "o"}, "[]", function()
+                        ts_repeat_move.repeat_last_move({ forward = false, start = false })
+                    end, keymap_opts)
+                    return false
+                end,
                 set_jumps = true,
                 goto_next_start = {
-                    ["]k"] = "@class.outer",
+                    ["]b"] = "@block.outer",
+                    ["]f"] = "@function.outer",
+                    ["]i"] = "@conditional.outer",
                     ["]l"] = "@loop.outer",
-                    ["]]"] = { query = { "@function.outer", "@class.outer" } },
+                    ["]t"] = "@class.outer",
                 },
                 goto_next_end = {
-                    ["]K"] = "@class.outer",
+                    ["]B"] = "@block.outer",
+                    ["]F"] = "@function.outer",
+                    ["]I"] = "@conditional.outer",
                     ["]L"] = "@loop.outer",
-                    ["]["] = { query = { "@function.outer", "@class.outer" } },
+                    ["]T"] = "@class.outer",
                 },
                 goto_previous_start = {
-                    ["[k"] = "@class.outer",
+                    ["[b"] = "@block.outer",
+                    ["[f"] = "@function.outer",
+                    ["[t"] = "@class.outer",
+                    ["[i"] = "@conditional.outer",
                     ["[l"] = "@loop.outer",
-                    ["[["] = { query = { "@function.outer", "@class.outer" } },
                 },
                 goto_previous_end = {
-                    ["[K"] = "@class.outer",
+                    ["[B"] = "@block.outer",
+                    ["[F"] = "@function.outer",
+                    ["[I"] = "@conditional.outer",
                     ["[L"] = "@loop.outer",
-                    ["[]"] = { query = { "@function.outer", "@class.outer" } },
+                    ["[T"] = "@class.outer",
                 },
             },
         },
