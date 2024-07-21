@@ -56,7 +56,4 @@ return {
             },
         },
     },
-    init = function()
-        vim.treesitter.language.register("markdown", "octo")
-    end,
 }

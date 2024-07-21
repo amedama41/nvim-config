@@ -41,12 +41,12 @@ return {
                 disable = function(lang, bufnr)
                     local keymap_opts = { buffer = bufnr, noremap = true }
                     local ts_repeat_move = require "nvim-treesitter.textobjects.repeatable_move"
-                    vim.keymap.set({"n", "x", "o"}, "]]", ts_repeat_move.repeat_last_move_next, keymap_opts)
-                    vim.keymap.set({"n", "x", "o"}, "][", function()
+                    vim.keymap.set({ "n", "x", "o" }, "]]", ts_repeat_move.repeat_last_move_next, keymap_opts)
+                    vim.keymap.set({ "n", "x", "o" }, "][", function()
                         ts_repeat_move.repeat_last_move({ forward = true, start = false })
                     end, keymap_opts)
-                    vim.keymap.set({"n", "x", "o"}, "[[", ts_repeat_move.repeat_last_move_previous, keymap_opts)
-                    vim.keymap.set({"n", "x", "o"}, "[]", function()
+                    vim.keymap.set({ "n", "x", "o" }, "[[", ts_repeat_move.repeat_last_move_previous, keymap_opts)
+                    vim.keymap.set({ "n", "x", "o" }, "[]", function()
                         ts_repeat_move.repeat_last_move({ forward = false, start = false })
                     end, keymap_opts)
                     return false
@@ -83,4 +83,18 @@ return {
             },
         },
     },
+    config = function(_, opts)
+        require("nvim-treesitter.configs").setup(opts)
+        local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+        parser_config.octo = {
+            install_info = {
+                url = "https://github.com/amedama41/tree-sitter-octo",
+                files = { "src/parser.c", "src/scanner.c" },
+                branch = "main",
+                generate_requires_npm = false,
+                requires_generate_from_grammar = false,
+            },
+            filetype = "octo",
+        }
+    end,
 }
