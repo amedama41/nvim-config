@@ -30,12 +30,12 @@ let colors_name = "mine"
 :hi Visual guibg=#008080 ctermbg=darkyellow term=reverse
 :hi WarningMsg guifg=#ffd7d7 ctermfg=224
 :hi! link String Constant
-:hi Comment term=bold ctermfg=darkgray guifg=darkgray
+:hi Comment term=bold ctermfg=darkgray guifg=NvimLightGray3
 :hi Constant guifg=#ff76ff ctermfg=magenta
 :hi Special guifg=#d7ff00 ctermfg=190 " yellow2
 :hi Identifier guifg=white ctermfg=white
 :hi Include guifg=darkcyan gui=bold ctermfg=darkcyan cterm=bold
-:hi PreProc guifg=darkcyan gui=bold ctermfg=darkcyan cterm=bold
+:hi PreProc guifg=NvimLightCyan gui=bold ctermfg=darkcyan cterm=bold
 :hi Operator guifg=lightgreen ctermfg=lightgreen
 " :hi Define guifg=gold gui=bold ctermfg=yellow
 :hi! link Delimiter Special

@@ -87,6 +87,8 @@ return {
                         ["<C-g>*"] = actions.toggle_all,
                         ["<C-b>"] = actions.preview_scrolling_up,
                         ["<C-f>"] = actions.preview_scrolling_down,
+                        ["<C-i>"] = actions.toggle_selection + actions.move_selection_next,
+                        ["<C-S-i>"] = actions.toggle_selection + actions.move_selection_previous,
                         ["<M-h>"] = actions.preview_scrolling_left,
                         ["<M-l>"] = actions.preview_scrolling_right,
                         ["<C-k>"] = actions.results_scrolling_left,

@@ -12,7 +12,7 @@ return {
         use_local_fs = true,
         picker_config = {
             mappings = {
-                open_in_browse = { lhs = "<C-g>K", desc = "open issue in browser" },
+                open_in_browser = { lhs = "<C-g>K", desc = "open issue in browser" },
                 copy_url = { lhs = "<C-g>Y", desc = "copy url to system clipboard" },
                 checkout_pr = { lhs = "<C-g>C", desc = "checkout pull request" },
                 merge_pr = { lhs = "<C-g>M", desc = "merge pull request" },
@@ -54,6 +54,20 @@ return {
                 select_next_entry = { lhs = "<Tab>", desc = "move to previous changed file" },
                 select_prev_entry = { lhs = "<S-Tab>", desc = "move to next changed file" },
             },
+        },
+        colors = {
+            white = "White",
+            grey = "NvimLightGray3",
+            black = "Black",
+            red = "NvimLightRed",
+            dark_red = "NvimLightRed",
+            green = "NvimLightGreen",
+            dark_green = "NvimLightGreen",
+            yellow = "NvimDarkYellow",
+            dark_yellow = "NvimDarkYellow",
+            blue = "NvimLightBlue",
+            dark_blue = "NvimDarkBlue",
+            purple = "Purple",
         },
     },
 }
