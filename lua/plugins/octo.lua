@@ -63,7 +63,7 @@ return {
             dark_red = "NvimLightRed",
             green = "NvimLightGreen",
             dark_green = "NvimLightGreen",
-            yellow = "NvimDarkYellow",
+            yellow = "NvimLightYellow",
             dark_yellow = "NvimDarkYellow",
             blue = "NvimLightBlue",
             dark_blue = "NvimDarkBlue",

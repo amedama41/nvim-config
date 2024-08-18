@@ -139,8 +139,16 @@ return {
                 ["s"] = action.open_by_split,
                 ["S"] = action.change_sort,
                 ["u"] = function(vfiler, context, view)
-                    action.move_cursor_top_sibling(vfiler, context, view)
-                    action.move_cursor_up(vfiler, context, view)
+                    local lnum = vim.fn.line(".")
+                    local current = view:get_item(lnum)
+                    local top_lnum = view:top_lnum()
+                    if top_lnum < lnum then
+                        local prev = view:get_item(lnum - 1)
+                        if current.level == prev.level then
+                            action.move_cursor_top_sibling(vfiler, context, view)
+                        end
+                        action.move_cursor_up(vfiler, context, view)
+                    end
                 end,
                 ["U"] = action.clear_selected_all,
                 ["xx"] = action.move_to_filer,
@@ -231,19 +239,22 @@ return {
             },
         })
         local keymap_opts = { noremap = true, silent = true }
-        local cmd = table.concat({
-            "VFiler",
-            "-auto-cd",
-            "-auto-resize",
-            "-find-file",
-            "-keep",
-            "-session=buffer",
-            "-no-listed",
-            "-layout=left",
-            "-name=explorer",
-            "-width=30",
-            "-columns=indent,icon,name,git",
-        }, " ")
-        vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd .. "<CR>", keymap_opts)
+        local cmd = function(width)
+            return table.concat({
+                "VFiler",
+                "-auto-cd",
+                "-auto-resize",
+                "-find-file",
+                "-keep",
+                "-session=buffer",
+                "-no-listed",
+                "-layout=left",
+                "-name=explorer",
+                ("-width=%d"):format(width),
+                "-columns=indent,icon,name,git",
+            }, " ")
+        end
+        vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd(30) .. "<CR>", keymap_opts)
+        vim.api.nvim_set_keymap("n", "<C-\\>E", "<cmd>" .. cmd(vim.o.columns / 2) .. "<CR>", keymap_opts)
     end,
 }
