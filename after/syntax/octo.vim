@@ -1,5 +1,6 @@
 :hi OctoBubble guibg=White guifg=black
 :hi OctoBubbleYellow guibg=NvimLightYellow guifg=black
+:hi OctoBubbleGreen guibg=NvimLightGreen guifg=black
 :hi OctoIssueTitle guifg=NvimLightYellow guisp=black gui=bold,underline
 :hi OctoDetailsLabel guifg=Violet gui=none
 :hi OctoTimelineItemHeading.Review guifg=NvimLightBlue gui=bold

@@ -61,7 +61,7 @@ let colors_name = "mine"
 :hi Underlined gui=underline guifg=purple cterm=underline ctermfg=5
 :hi Error guifg=#141313 guibg=#ff6d67 ctermfg=15 ctermbg=9
 " :hi SpellErrors guifg=White guibg=Red cterm=bold ctermfg=7 ctermbg=1
-:hi SpellBad guibg=#ff6d67 guifg=black ctermbg=red ctermfg=black
+:hi SpellBad guibg=#ff6d67 guifg=none ctermbg=red ctermfg=black
 :hi SpellCap guibg=#6871ff ctermbg=12
 :hi SpellRare guibg=#ff76ff ctermbg=13
 :hi SpellLocal guibg=#5ffdff ctermbg=14

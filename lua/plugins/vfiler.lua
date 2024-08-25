@@ -4,6 +4,29 @@ return {
         local action = require("vfiler/action")
         local vfiler_config = require("vfiler/config")
         vfiler_config.clear_mappings()
+        local function open_scallop(vfiler, context, view, change_cwd)
+            local cwd = nil
+            if change_cwd then
+                cwd = context.root.path
+            end
+            local selected_items = view:selected_items()
+            ---@type string?
+            local args = ""
+            for _, item in pairs(selected_items) do
+                if item.selected then
+                    args = args .. " " .. vim.fn.shellescape(item.path)
+                end
+            end
+            action.clear_selected_all(vfiler, context, view)
+            if args == "" then
+                args = nil
+            end
+            require("lazy").load({
+                plugins = "scallop.nvim",
+                wait = true,
+            })
+            require("scallop").open_edit(args, cwd)
+        end
         vfiler_config.setup({
             options = {
                 auto_cd = true,
@@ -186,23 +209,11 @@ return {
                 ["<C-h>"] = action.change_to_parent,
                 ["<C-j>"] = action.jump_to_history_directory,
                 ["<C-k>"] = function(vfiler, context, view)
-                    local selected_items = view:selected_items()
-                    ---@type string?
-                    local args = ""
-                    for _, item in pairs(selected_items) do
-                        if item.selected then
-                            args = args .. " " .. vim.fn.shellescape(item.path)
-                        end
-                    end
-                    action.clear_selected_all(vfiler, context, view)
-                    if args == "" then
-                        args = nil
-                    end
-                    require("lazy").load({
-                        plugins = "scallop.nvim",
-                        wait = true,
-                    })
-                    require("scallop").open_edit(args, context.root.path)
+                    local change_cwd = not vim.startswith(vim.fn.bufname(), "vfiler:explorer")
+                    open_scallop(vfiler, context, view, change_cwd)
+                end,
+                ["<C-S-k>"] = function(vfiler, context, view)
+                    open_scallop(vfiler, context, view, true)
                 end,
                 ["<C-l>"] = action.reload_all_dir,
                 ["<C-o>"] = function() end,
@@ -239,7 +250,7 @@ return {
             },
         })
         local keymap_opts = { noremap = true, silent = true }
-        local cmd = function(width)
+        local cmd = function(width, columns)
             return table.concat({
                 "VFiler",
                 "-auto-cd",
@@ -251,10 +262,10 @@ return {
                 "-layout=left",
                 "-name=explorer",
                 ("-width=%d"):format(width),
-                "-columns=indent,icon,name,git",
+                ("-columns=%s"):format(columns),
             }, " ")
         end
-        vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd(30) .. "<CR>", keymap_opts)
-        vim.api.nvim_set_keymap("n", "<C-\\>E", "<cmd>" .. cmd(vim.o.columns / 2) .. "<CR>", keymap_opts)
+        vim.api.nvim_set_keymap("n", "<C-\\>e", "<cmd>" .. cmd(30, "indent,icon,name,git") .. "<CR>", keymap_opts)
+        vim.api.nvim_set_keymap("n", "<C-\\>E", "<cmd>" .. cmd(vim.o.columns / 2, "indent,icon,name,git,size,time") .. "<CR>", keymap_opts)
     end,
 }

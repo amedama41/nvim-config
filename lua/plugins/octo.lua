@@ -67,7 +67,7 @@ return {
             dark_yellow = "NvimDarkYellow",
             blue = "NvimLightBlue",
             dark_blue = "NvimDarkBlue",
-            purple = "Purple",
+            purple = "#afafff",
         },
     },
 }
