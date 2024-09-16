@@ -145,7 +145,7 @@ do
                 vim.fn.jobstop(jobid)
                 -- Release iTerm sixel resource
                 if vim.env.TERM_PROGRAM == "iTerm.app" then
-                    vim.fn.chansend(vim.v.stderr, "\x1b\\\x1b]1337;ClearScrollback\x1b\\")
+                    vim.fn.chansend(vim.v.stderr, "\x1b\\\x1b[?25h\x1b]1337;ClearScrollback\x1b\\")
                 end
                 -- Avoid textlock
                 vim.schedule(function()

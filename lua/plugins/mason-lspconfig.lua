@@ -28,11 +28,20 @@ return {
                     single_file_mode = false,
                 })
             end,
-            ["tsserver"] = function()
-                lspconfig.tsserver.setup({
+            ["ts_ls"] = function()
+                lspconfig.ts_ls.setup({
                     capabilities = require("cmp_nvim_lsp").default_capabilities(),
                     filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
                     single_file_mode = false,
+                })
+            end,
+            ["rust_analyzer"] = function()
+                lspconfig.rust_analyzer.setup({
+                    capabilities = require("cmp_nvim_lsp").default_capabilities(),
+                    single_file_mode = false,
+                    cargo = {
+                        loadOutDirsFromCheck = true,
+                    },
                 })
             end,
             ["efm"] = function()
